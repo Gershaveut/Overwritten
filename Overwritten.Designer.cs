@@ -48,6 +48,8 @@ namespace Overwritten
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.cancel = new System.Windows.Forms.Button();
             this.yes = new System.Windows.Forms.Button();
+            this.currentFile = new System.Windows.Forms.Label();
+            this.undo = new System.Windows.Forms.Button();
             this.requireAdministrator.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -57,8 +59,10 @@ namespace Overwritten
             this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBar.Location = new System.Drawing.Point(12, 282);
+            this.progressBar.MarqueeAnimationSpeed = 0;
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(280, 23);
+            this.progressBar.Step = 1;
             this.progressBar.TabIndex = 0;
             // 
             // replace
@@ -67,7 +71,7 @@ namespace Overwritten
             | System.Windows.Forms.AnchorStyles.Right)));
             this.replace.Location = new System.Drawing.Point(12, 311);
             this.replace.Name = "replace";
-            this.replace.Size = new System.Drawing.Size(280, 23);
+            this.replace.Size = new System.Drawing.Size(194, 23);
             this.replace.TabIndex = 1;
             this.replace.Text = "Заменить";
             this.replace.UseVisualStyleBackColor = true;
@@ -189,9 +193,9 @@ namespace Overwritten
             this.requireAdministrator.Controls.Add(this.pictureBox1);
             this.requireAdministrator.Controls.Add(this.cancel);
             this.requireAdministrator.Controls.Add(this.yes);
-            this.requireAdministrator.Location = new System.Drawing.Point(14, 176);
+            this.requireAdministrator.Location = new System.Drawing.Point(12, 163);
             this.requireAdministrator.Name = "requireAdministrator";
-            this.requireAdministrator.Size = new System.Drawing.Size(278, 100);
+            this.requireAdministrator.Size = new System.Drawing.Size(280, 100);
             this.requireAdministrator.TabIndex = 13;
             this.requireAdministrator.Visible = false;
             // 
@@ -201,7 +205,7 @@ namespace Overwritten
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.Location = new System.Drawing.Point(59, 3);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(214, 50);
+            this.label2.Size = new System.Drawing.Size(216, 50);
             this.label2.TabIndex = 3;
             this.label2.Text = "Выполнение этой задачи требует наличия разрешений более высокого уровня.";
             // 
@@ -218,7 +222,7 @@ namespace Overwritten
             // cancel
             // 
             this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancel.Location = new System.Drawing.Point(115, 72);
+            this.cancel.Location = new System.Drawing.Point(117, 72);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(76, 23);
             this.cancel.TabIndex = 1;
@@ -229,7 +233,7 @@ namespace Overwritten
             // yes
             // 
             this.yes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.yes.Location = new System.Drawing.Point(197, 72);
+            this.yes.Location = new System.Drawing.Point(199, 72);
             this.yes.Name = "yes";
             this.yes.Size = new System.Drawing.Size(76, 23);
             this.yes.TabIndex = 0;
@@ -237,11 +241,34 @@ namespace Overwritten
             this.yes.UseVisualStyleBackColor = true;
             this.yes.Click += new System.EventHandler(this.yes_Click);
             // 
+            // currentFile
+            // 
+            this.currentFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.currentFile.BackColor = System.Drawing.Color.Transparent;
+            this.currentFile.Location = new System.Drawing.Point(19, 266);
+            this.currentFile.Name = "currentFile";
+            this.currentFile.Size = new System.Drawing.Size(273, 13);
+            this.currentFile.TabIndex = 14;
+            this.currentFile.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // undo
+            // 
+            this.undo.Location = new System.Drawing.Point(212, 311);
+            this.undo.Name = "undo";
+            this.undo.Size = new System.Drawing.Size(80, 23);
+            this.undo.TabIndex = 15;
+            this.undo.Text = "Отменить";
+            this.undo.UseVisualStyleBackColor = true;
+            this.undo.Click += new System.EventHandler(this.undo_Click);
+            // 
             // Overwritten
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(304, 346);
+            this.Controls.Add(this.undo);
+            this.Controls.Add(this.currentFile);
             this.Controls.Add(this.requireAdministrator);
             this.Controls.Add(this.nameChange);
             this.Controls.Add(this.fullName);
@@ -283,6 +310,8 @@ namespace Overwritten
         private System.Windows.Forms.Button cancel;
         private System.Windows.Forms.Button yes;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label currentFile;
+        private System.Windows.Forms.Button undo;
     }
 }
 

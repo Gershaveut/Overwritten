@@ -10,6 +10,8 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
+        private List<UndoFile> undoFiles = new List<UndoFile>();
+
         public Overwritten()
         {
             InitializeComponent();
@@ -18,7 +20,10 @@ namespace Overwritten
         private void replacementSelection_Click(object sender, EventArgs e)
         {
             replacementFile.ShowDialog();
-            replacement.Text = replacementFile.FileName;
+            if (replacementFile.FileName != "")
+                replacement.Text = replacementFile.FileName;
+            else
+                ComboBoxs_Leave(replacement, e);
         }
 
         private void searchDirectorySelection_Click(object sender, EventArgs e)
@@ -29,6 +34,8 @@ namespace Overwritten
 
         private void replace_Click(object sender, EventArgs e)
         {
+            replace.Enabled = false;
+            replace.Refresh();
             try
             {
                 List<string> files = GetAllFiles(searchDirectory.Text);
@@ -38,6 +45,11 @@ namespace Overwritten
                 {
                     if (fullName.Checked ? search.Text == Path.GetFileName(file) : search.Text.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any())
                     {
+                        currentFile.Text = file;
+                        currentFile.Refresh();
+
+                        undoFiles.Add(new UndoFile(file));
+
                         if (nameChange.Checked)
                         {
                             File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)));
@@ -48,7 +60,7 @@ namespace Overwritten
                         else
                             File.Copy(replacement.Text, file, true);
 
-                        progressBar.Value += 1;
+                        progressBar.PerformStep();
                     }
                 }
 
@@ -61,9 +73,6 @@ namespace Overwritten
                         replace_Click(replace, null);
                     }
                 }
-
-                progressBar.Value = 0;
-                replace.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -75,10 +84,12 @@ namespace Overwritten
                 {
                     MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Console.WriteLine(ex);
-                    progressBar.Value = 0;
-                    replace.Enabled = true;
                 }
             }
+            currentFile.Text = "";
+            progressBar.Value = 0;
+            if (!requireAdministrator.Visible)
+                replace.Enabled = true;
         }
 
         private static List<string> GetAllFiles(string directoryPath)
@@ -141,6 +152,14 @@ namespace Overwritten
             requireAdministrator.Visible = false;
             progressBar.Value = 0;
             replace.Enabled = true;
+        }
+
+        private void undo_Click(object sender, EventArgs e)
+        {
+            foreach(UndoFile file in undoFiles)
+            {
+                file.Undo();
+            }
         }
     }
 }
