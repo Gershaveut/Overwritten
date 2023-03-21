@@ -11,6 +11,11 @@ namespace Overwritten
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Overwritten());
+
+            foreach (UndoFile file in Overwritten.undoFiles)
+            {
+                file.Delete();
+            }
         }
     }
 }

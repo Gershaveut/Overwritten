@@ -10,7 +10,8 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
-        private List<UndoFile> undoFiles = new List<UndoFile>();
+        public static List<UndoFile> undoFiles = new List<UndoFile>();
+        private List<string> createFiles = new List<string>();
 
         public Overwritten()
         {
@@ -35,7 +36,9 @@ namespace Overwritten
         private void replace_Click(object sender, EventArgs e)
         {
             replace.Enabled = false;
+            undo.Enabled = false;
             replace.Refresh();
+            undo.Refresh();
             try
             {
                 List<string> files = GetAllFiles(searchDirectory.Text);
@@ -48,12 +51,15 @@ namespace Overwritten
                         currentFile.Text = file;
                         currentFile.Refresh();
 
-                        undoFiles.Add(new UndoFile(file));
+                        if (undoCheck.Checked)
+                            undoFiles.Add(new UndoFile(file));
 
                         if (nameChange.Checked)
                         {
                             File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)));
                             File.Copy(replacement.Text, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)), true);
+                            if (undoCheck.Checked)
+                                createFiles.Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)));
                             if (Path.GetFileName(file) != Path.GetFileName(replacement.Text))
                                 File.Delete(file);
                         }
@@ -89,7 +95,10 @@ namespace Overwritten
             currentFile.Text = "";
             progressBar.Value = 0;
             if (!requireAdministrator.Visible)
+            {
                 replace.Enabled = true;
+                СheckUndo();
+            }
         }
 
         private static List<string> GetAllFiles(string directoryPath)
@@ -156,9 +165,45 @@ namespace Overwritten
 
         private void undo_Click(object sender, EventArgs e)
         {
-            foreach(UndoFile file in undoFiles)
+            replace.Enabled = false;
+            undo.Enabled = false;
+            replace.Refresh();
+            undo.Refresh();
+            progressBar.Maximum = undoFiles.Count + createFiles.Count;
+            try
             {
-                file.Undo();
+                foreach (string file in createFiles)
+                {
+                    currentFile.Text = file;
+                    currentFile.Refresh();
+                    File.Delete(file);
+                    progressBar.PerformStep();
+                }
+                foreach (UndoFile file in undoFiles)
+                {
+                    currentFile.Text = file.undoPath;
+                    currentFile.Refresh();
+                    file.Undo();
+                    progressBar.PerformStep();
+                }
+                MessageBox.Show("Дело сделано", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine(ex);
+            }
+            currentFile.Text = "";
+            progressBar.Value = 0;
+            undoFiles.Clear();
+            replace.Enabled = true;
+        }
+
+        private void СheckUndo()
+        {
+            if (undoFiles.Count > 0)
+            {
+                undo.Enabled = true;
             }
         }
     }

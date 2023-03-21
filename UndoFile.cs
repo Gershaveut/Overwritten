@@ -1,28 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace Overwritten
 {
-    internal class UndoFile
+    public class UndoFile
     {
         private string file;
-        private string undoPath;
+        public string undoPath;
 
-        public UndoFile(string file) 
+        public UndoFile(string file)
         {
-            Directory.CreateDirectory(Path.GetTempPath() + "\\Overwritten");
-            File.Copy(Path.GetTempPath() + "\\Overwritten", file);
-            this.file = Path.GetTempPath() + "\\Overwritten\\" + Path.GetFileName(file);
+            this.file = Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
+            File.Copy(file, this.file, true);
             undoPath = file;
         }
 
         public void Undo()
         {
-            File.Copy(undoPath, file);
+            File.Copy(file, undoPath, true);
+            File.Delete(file);
+        }
+
+        public void Delete()
+        {
+            File.Delete(file);
         }
     }
 }

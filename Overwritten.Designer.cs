@@ -50,6 +50,7 @@ namespace Overwritten
             this.yes = new System.Windows.Forms.Button();
             this.currentFile = new System.Windows.Forms.Label();
             this.undo = new System.Windows.Forms.Button();
+            this.undoCheck = new System.Windows.Forms.CheckBox();
             this.requireAdministrator.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -254,6 +255,8 @@ namespace Overwritten
             // 
             // undo
             // 
+            this.undo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.undo.Enabled = false;
             this.undo.Location = new System.Drawing.Point(212, 311);
             this.undo.Name = "undo";
             this.undo.Size = new System.Drawing.Size(80, 23);
@@ -262,11 +265,24 @@ namespace Overwritten
             this.undo.UseVisualStyleBackColor = true;
             this.undo.Click += new System.EventHandler(this.undo_Click);
             // 
+            // undoCheck
+            // 
+            this.undoCheck.AutoSize = true;
+            this.undoCheck.Checked = true;
+            this.undoCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.undoCheck.Location = new System.Drawing.Point(169, 65);
+            this.undoCheck.Name = "undoCheck";
+            this.undoCheck.Size = new System.Drawing.Size(124, 17);
+            this.undoCheck.TabIndex = 16;
+            this.undoCheck.Text = "Отмена изменений";
+            this.undoCheck.UseVisualStyleBackColor = true;
+            // 
             // Overwritten
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(304, 346);
+            this.Controls.Add(this.undoCheck);
             this.Controls.Add(this.undo);
             this.Controls.Add(this.currentFile);
             this.Controls.Add(this.requireAdministrator);
@@ -312,6 +328,7 @@ namespace Overwritten
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label currentFile;
         private System.Windows.Forms.Button undo;
+        private System.Windows.Forms.CheckBox undoCheck;
     }
 }
 
