@@ -41,6 +41,12 @@ namespace Overwritten
             undo.Refresh();
             try
             {
+                undoFiles.Clear();
+                foreach (UndoFile file in Overwritten.undoFiles)
+                {
+                    file.Delete();
+                }
+
                 List<string> files = GetAllFiles(searchDirectory.Text);
                 progressBar.Maximum = files.Count;
                 replace.Enabled = false;
