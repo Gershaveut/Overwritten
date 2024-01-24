@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -74,6 +73,8 @@ namespace Overwritten
                 {
                     if (fullNameCheckChecked ? searchComboText == Path.GetFileName(file) : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any())
                     {
+                        worker.ReportProgress(0, file);
+
                         if (worker.CancellationPending == true)
                         {
                             e.Cancel = true;
@@ -95,8 +96,6 @@ namespace Overwritten
                         }
                         else
                             File.Copy(replacementComboText, file, true);
-
-                        worker.ReportProgress(0, file);
                     }
                 }
             }
@@ -193,9 +192,14 @@ namespace Overwritten
 
                 if (!requireAdministrator.Visible)
                 {
-                    replaceButton.Enabled = true;
+                    replaceButton.Enabled = !cancelWorker.IsBusy;
                     СheckUndo();
                 }
+            }
+            else
+            {
+                replaceButton.Enabled = !cancelWorker.IsBusy;
+                СheckUndo();
             }
         }
 
@@ -239,8 +243,17 @@ namespace Overwritten
                 replaceWorker.CancelAsync();
             else
             {
-                historyForm.historyDataGridView.Rows.RemoveAt(historyForm.historyDataGridView.Rows.Count - 1);
-                
+                try
+                {
+                    historyForm.historyDataGridView.Rows.RemoveAt(historyForm.historyDataGridView.Rows.Count - 1);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка удаления истории", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    LogsWrite(ex.ToString());
+                }
+
                 LogsWrite("Удаление последней замены в истории");
             }
 
@@ -259,32 +272,41 @@ namespace Overwritten
         private void СheckUndo()
         {
             if (!cancelWorker.IsBusy)
-                cancelButton.Enabled = undoFiles.Count > 0;
+                cancelButton.Enabled = undoFiles.Count > 0 || replaceWorker.IsBusy;
         }
 
         private void СancelWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
+            if (replaceWorker.IsBusy)
+                worker.ReportProgress(0, "Ожидание завершения замены");
+
+            while (replaceWorker.IsBusy)
+            {
+                Application.DoEvents();
+            }
+
             try
             {
                 foreach (string file in createFiles)
                 {
-                    File.Delete(file);
-
                     worker.ReportProgress(0, "Удаление: " + file);
+
+                    File.Delete(file);
                 }
 
                 foreach (UndoFile file in undoFiles)
                 {
-                    file.Undo();
-
                     worker.ReportProgress(0, "Возвращение: " + file.undoPath);
+
+                    file.Undo();
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 LogsWrite(ex.ToString());
             }
         }
@@ -304,7 +326,8 @@ namespace Overwritten
             MessageBox.Show("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 
             undoFiles.Clear();
-            replaceButton.Enabled = true;
+
+            replaceButton.Enabled = !replaceWorker.IsBusy;
         }
 
         private void RequireAdministratorConfirmButton_Click(object sender, EventArgs e)
@@ -374,6 +397,7 @@ namespace Overwritten
             progressBar.Value = 0;
             progressBar.Visible = false;
             replaceButton.Enabled = true;
+            СheckUndo();
         }
 
         private void LogsStripMenuItem_Click(object sender, EventArgs e)
