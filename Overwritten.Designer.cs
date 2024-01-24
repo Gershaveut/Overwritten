@@ -32,276 +32,353 @@ namespace Overwritten
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Overwritten));
             this.progressBar = new System.Windows.Forms.ProgressBar();
-            this.replace = new System.Windows.Forms.Button();
-            this.replacementFile = new System.Windows.Forms.OpenFileDialog();
-            this.searchFolder = new System.Windows.Forms.FolderBrowserDialog();
-            this.search = new System.Windows.Forms.ComboBox();
-            this.replacementSelection = new System.Windows.Forms.Button();
-            this.searchDirectorySelection = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.replacement = new System.Windows.Forms.ComboBox();
-            this.searchDirectory = new System.Windows.Forms.ComboBox();
-            this.fullName = new System.Windows.Forms.CheckBox();
-            this.nameChange = new System.Windows.Forms.CheckBox();
+            this.replaceButton = new System.Windows.Forms.Button();
+            this.replacementSearch = new System.Windows.Forms.OpenFileDialog();
+            this.searchDirectorySearch = new System.Windows.Forms.FolderBrowserDialog();
+            this.searchCombo = new System.Windows.Forms.ComboBox();
+            this.replacementSelectionButton = new System.Windows.Forms.Button();
+            this.searchDirectorySelectionButton = new System.Windows.Forms.Button();
+            this.searchDirectoryLabel = new System.Windows.Forms.Label();
+            this.replacementCombo = new System.Windows.Forms.ComboBox();
+            this.searchDirectoryCombo = new System.Windows.Forms.ComboBox();
+            this.fullNameCheck = new System.Windows.Forms.CheckBox();
+            this.nameChangeCheck = new System.Windows.Forms.CheckBox();
             this.requireAdministrator = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.cancel = new System.Windows.Forms.Button();
-            this.yes = new System.Windows.Forms.Button();
+            this.requireAdministratorLabel = new System.Windows.Forms.Label();
+            this.requireAdministratorPicture = new System.Windows.Forms.PictureBox();
+            this.requireAdministratorCancelButton = new System.Windows.Forms.Button();
+            this.requireAdministratorConfirmButton = new System.Windows.Forms.Button();
             this.currentFile = new System.Windows.Forms.Label();
-            this.undo = new System.Windows.Forms.Button();
+            this.cancelButton = new System.Windows.Forms.Button();
             this.undoCheck = new System.Windows.Forms.CheckBox();
+            this.replaceWorker = new System.ComponentModel.BackgroundWorker();
+            this.cancelWorker = new System.ComponentModel.BackgroundWorker();
+            this.searchSubdirectoriesCheck = new System.Windows.Forms.CheckBox();
+            this.menuStrip = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.logsStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.historyStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.requireAdministrator.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.requireAdministratorPicture)).BeginInit();
+            this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // progressBar
             // 
-            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar.Location = new System.Drawing.Point(12, 282);
+            this.progressBar.Location = new System.Drawing.Point(12, 302);
             this.progressBar.MarqueeAnimationSpeed = 0;
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(280, 23);
+            this.progressBar.Size = new System.Drawing.Size(295, 23);
             this.progressBar.Step = 1;
             this.progressBar.TabIndex = 0;
+            this.progressBar.Visible = false;
             // 
-            // replace
+            // replaceButton
             // 
-            this.replace.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.replaceButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.replace.Location = new System.Drawing.Point(12, 311);
-            this.replace.Name = "replace";
-            this.replace.Size = new System.Drawing.Size(194, 23);
-            this.replace.TabIndex = 1;
-            this.replace.Text = "Заменить";
-            this.replace.UseVisualStyleBackColor = true;
-            this.replace.Click += new System.EventHandler(this.replace_Click);
+            this.replaceButton.Location = new System.Drawing.Point(12, 331);
+            this.replaceButton.Name = "replaceButton";
+            this.replaceButton.Size = new System.Drawing.Size(209, 23);
+            this.replaceButton.TabIndex = 1;
+            this.replaceButton.Text = "Заменить";
+            this.replaceButton.UseVisualStyleBackColor = true;
+            this.replaceButton.Click += new System.EventHandler(this.ReplaceButton_Click);
             // 
-            // search
+            // searchCombo
             // 
-            this.search.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.searchCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.search.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
-            this.search.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.search.FormattingEnabled = true;
-            this.search.Location = new System.Drawing.Point(12, 12);
-            this.search.Name = "search";
-            this.search.Size = new System.Drawing.Size(280, 21);
-            this.search.TabIndex = 8;
-            this.search.Tag = "Поиск";
-            this.search.Text = "Поиск";
-            this.search.TextChanged += new System.EventHandler(this.ComboBoxs_TextChanged);
-            this.search.Enter += new System.EventHandler(this.ComboBoxs_Enter);
-            this.search.Leave += new System.EventHandler(this.ComboBoxs_Leave);
+            this.searchCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
+            this.searchCombo.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.searchCombo.FormattingEnabled = true;
+            this.searchCombo.Location = new System.Drawing.Point(12, 32);
+            this.searchCombo.Name = "searchCombo";
+            this.searchCombo.Size = new System.Drawing.Size(295, 21);
+            this.searchCombo.TabIndex = 8;
+            this.searchCombo.Tag = "Поиск";
+            this.searchCombo.Text = "Поиск";
+            this.searchCombo.TextChanged += new System.EventHandler(this.ComboBoxs_TextChanged);
+            this.searchCombo.Enter += new System.EventHandler(this.ComboBoxs_Enter);
+            this.searchCombo.Leave += new System.EventHandler(this.ComboBoxs_Leave);
             // 
-            // replacementSelection
+            // replacementSelectionButton
             // 
-            this.replacementSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.replacementSelection.Location = new System.Drawing.Point(267, 38);
-            this.replacementSelection.Name = "replacementSelection";
-            this.replacementSelection.Size = new System.Drawing.Size(25, 21);
-            this.replacementSelection.TabIndex = 1;
-            this.replacementSelection.Text = "...";
-            this.replacementSelection.UseVisualStyleBackColor = true;
-            this.replacementSelection.Click += new System.EventHandler(this.replacementSelection_Click);
+            this.replacementSelectionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.replacementSelectionButton.Location = new System.Drawing.Point(282, 58);
+            this.replacementSelectionButton.Name = "replacementSelectionButton";
+            this.replacementSelectionButton.Size = new System.Drawing.Size(25, 21);
+            this.replacementSelectionButton.TabIndex = 1;
+            this.replacementSelectionButton.Text = "...";
+            this.replacementSelectionButton.UseVisualStyleBackColor = true;
+            this.replacementSelectionButton.Click += new System.EventHandler(this.ReplacementSelectionButton_Click);
             // 
-            // searchDirectorySelection
+            // searchDirectorySelectionButton
             // 
-            this.searchDirectorySelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchDirectorySelection.Location = new System.Drawing.Point(267, 110);
-            this.searchDirectorySelection.Name = "searchDirectorySelection";
-            this.searchDirectorySelection.Size = new System.Drawing.Size(25, 21);
-            this.searchDirectorySelection.TabIndex = 5;
-            this.searchDirectorySelection.Text = "...";
-            this.searchDirectorySelection.UseVisualStyleBackColor = true;
-            this.searchDirectorySelection.Click += new System.EventHandler(this.searchDirectorySelection_Click);
+            this.searchDirectorySelectionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchDirectorySelectionButton.Location = new System.Drawing.Point(282, 130);
+            this.searchDirectorySelectionButton.Name = "searchDirectorySelectionButton";
+            this.searchDirectorySelectionButton.Size = new System.Drawing.Size(25, 21);
+            this.searchDirectorySelectionButton.TabIndex = 5;
+            this.searchDirectorySelectionButton.Text = "...";
+            this.searchDirectorySelectionButton.UseVisualStyleBackColor = true;
+            this.searchDirectorySelectionButton.Click += new System.EventHandler(this.SearchDirectorySelectionButton_Click);
             // 
-            // label1
+            // searchDirectoryLabel
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.searchDirectoryLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(11, 113);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(89, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "Область поиска";
+            this.searchDirectoryLabel.AutoSize = true;
+            this.searchDirectoryLabel.Location = new System.Drawing.Point(11, 133);
+            this.searchDirectoryLabel.Name = "searchDirectoryLabel";
+            this.searchDirectoryLabel.Size = new System.Drawing.Size(89, 13);
+            this.searchDirectoryLabel.TabIndex = 7;
+            this.searchDirectoryLabel.Text = "Область поиска";
             // 
-            // replacement
+            // replacementCombo
             // 
-            this.replacement.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.replacementCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.replacement.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
-            this.replacement.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.replacement.FormattingEnabled = true;
-            this.replacement.Location = new System.Drawing.Point(12, 38);
-            this.replacement.Name = "replacement";
-            this.replacement.Size = new System.Drawing.Size(250, 21);
-            this.replacement.TabIndex = 9;
-            this.replacement.Tag = "Заменить";
-            this.replacement.Text = "Заменить";
-            this.replacement.TextChanged += new System.EventHandler(this.ComboBoxs_TextChanged);
-            this.replacement.Enter += new System.EventHandler(this.ComboBoxs_Enter);
-            this.replacement.Leave += new System.EventHandler(this.ComboBoxs_Leave);
+            this.replacementCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
+            this.replacementCombo.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.replacementCombo.FormattingEnabled = true;
+            this.replacementCombo.Location = new System.Drawing.Point(12, 58);
+            this.replacementCombo.Name = "replacementCombo";
+            this.replacementCombo.Size = new System.Drawing.Size(265, 21);
+            this.replacementCombo.TabIndex = 9;
+            this.replacementCombo.Tag = "Заменить";
+            this.replacementCombo.Text = "Заменить";
+            this.replacementCombo.TextChanged += new System.EventHandler(this.ComboBoxs_TextChanged);
+            this.replacementCombo.Enter += new System.EventHandler(this.ComboBoxs_Enter);
+            this.replacementCombo.Leave += new System.EventHandler(this.ComboBoxs_Leave);
             // 
-            // searchDirectory
+            // searchDirectoryCombo
             // 
-            this.searchDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.searchDirectoryCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchDirectory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
-            this.searchDirectory.FormattingEnabled = true;
-            this.searchDirectory.Location = new System.Drawing.Point(107, 111);
-            this.searchDirectory.Name = "searchDirectory";
-            this.searchDirectory.Size = new System.Drawing.Size(155, 21);
-            this.searchDirectory.TabIndex = 10;
+            this.searchDirectoryCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
+            this.searchDirectoryCombo.FormattingEnabled = true;
+            this.searchDirectoryCombo.Location = new System.Drawing.Point(107, 131);
+            this.searchDirectoryCombo.Name = "searchDirectoryCombo";
+            this.searchDirectoryCombo.Size = new System.Drawing.Size(170, 21);
+            this.searchDirectoryCombo.TabIndex = 10;
             // 
-            // fullName
+            // fullNameCheck
             // 
-            this.fullName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.fullNameCheck.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fullName.AutoSize = true;
-            this.fullName.Location = new System.Drawing.Point(15, 65);
-            this.fullName.Name = "fullName";
-            this.fullName.Size = new System.Drawing.Size(123, 17);
-            this.fullName.TabIndex = 11;
-            this.fullName.Text = "Название целиком";
-            this.fullName.UseVisualStyleBackColor = true;
+            this.fullNameCheck.AutoSize = true;
+            this.fullNameCheck.Location = new System.Drawing.Point(15, 85);
+            this.fullNameCheck.Name = "fullNameCheck";
+            this.fullNameCheck.Size = new System.Drawing.Size(123, 17);
+            this.fullNameCheck.TabIndex = 11;
+            this.fullNameCheck.Text = "Название целиком";
+            this.fullNameCheck.UseVisualStyleBackColor = true;
             // 
-            // nameChange
+            // nameChangeCheck
             // 
-            this.nameChange.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.nameChangeCheck.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.nameChange.AutoSize = true;
-            this.nameChange.Checked = true;
-            this.nameChange.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.nameChange.Location = new System.Drawing.Point(15, 88);
-            this.nameChange.Name = "nameChange";
-            this.nameChange.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.nameChange.Size = new System.Drawing.Size(128, 17);
-            this.nameChange.TabIndex = 12;
-            this.nameChange.Text = "Изменять название";
-            this.nameChange.UseVisualStyleBackColor = true;
+            this.nameChangeCheck.AutoSize = true;
+            this.nameChangeCheck.Location = new System.Drawing.Point(15, 108);
+            this.nameChangeCheck.Name = "nameChangeCheck";
+            this.nameChangeCheck.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.nameChangeCheck.Size = new System.Drawing.Size(128, 17);
+            this.nameChangeCheck.TabIndex = 12;
+            this.nameChangeCheck.Text = "Изменять название";
+            this.nameChangeCheck.UseVisualStyleBackColor = true;
             // 
             // requireAdministrator
             // 
-            this.requireAdministrator.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.requireAdministrator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.requireAdministrator.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(158)))));
             this.requireAdministrator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.requireAdministrator.Controls.Add(this.label2);
-            this.requireAdministrator.Controls.Add(this.pictureBox1);
-            this.requireAdministrator.Controls.Add(this.cancel);
-            this.requireAdministrator.Controls.Add(this.yes);
-            this.requireAdministrator.Location = new System.Drawing.Point(12, 163);
+            this.requireAdministrator.Controls.Add(this.requireAdministratorLabel);
+            this.requireAdministrator.Controls.Add(this.requireAdministratorPicture);
+            this.requireAdministrator.Controls.Add(this.requireAdministratorCancelButton);
+            this.requireAdministrator.Controls.Add(this.requireAdministratorConfirmButton);
+            this.requireAdministrator.Location = new System.Drawing.Point(12, 158);
             this.requireAdministrator.Name = "requireAdministrator";
-            this.requireAdministrator.Size = new System.Drawing.Size(280, 100);
+            this.requireAdministrator.Size = new System.Drawing.Size(295, 100);
             this.requireAdministrator.TabIndex = 13;
             this.requireAdministrator.Visible = false;
             // 
-            // label2
+            // requireAdministratorLabel
             // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.requireAdministratorLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.Location = new System.Drawing.Point(59, 3);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(216, 50);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Выполнение этой задачи требует наличия разрешений более высокого уровня.";
+            this.requireAdministratorLabel.Location = new System.Drawing.Point(59, 3);
+            this.requireAdministratorLabel.Name = "requireAdministratorLabel";
+            this.requireAdministratorLabel.Size = new System.Drawing.Size(231, 50);
+            this.requireAdministratorLabel.TabIndex = 3;
+            this.requireAdministratorLabel.Text = "Выполнение этой задачи требует наличия разрешений более высокого уровня.";
             // 
-            // pictureBox1
+            // requireAdministratorPicture
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(50, 50);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
+            this.requireAdministratorPicture.Image = ((System.Drawing.Image)(resources.GetObject("requireAdministratorPicture.Image")));
+            this.requireAdministratorPicture.Location = new System.Drawing.Point(3, 3);
+            this.requireAdministratorPicture.Name = "requireAdministratorPicture";
+            this.requireAdministratorPicture.Size = new System.Drawing.Size(50, 50);
+            this.requireAdministratorPicture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.requireAdministratorPicture.TabIndex = 2;
+            this.requireAdministratorPicture.TabStop = false;
             // 
-            // cancel
+            // requireAdministratorCancelButton
             // 
-            this.cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancel.Location = new System.Drawing.Point(117, 72);
-            this.cancel.Name = "cancel";
-            this.cancel.Size = new System.Drawing.Size(76, 23);
-            this.cancel.TabIndex = 1;
-            this.cancel.Text = "Отмена";
-            this.cancel.UseVisualStyleBackColor = true;
-            this.cancel.Click += new System.EventHandler(this.cancel_Click);
+            this.requireAdministratorCancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.requireAdministratorCancelButton.Location = new System.Drawing.Point(132, 72);
+            this.requireAdministratorCancelButton.Name = "requireAdministratorCancelButton";
+            this.requireAdministratorCancelButton.Size = new System.Drawing.Size(76, 23);
+            this.requireAdministratorCancelButton.TabIndex = 1;
+            this.requireAdministratorCancelButton.Text = "Отмена";
+            this.requireAdministratorCancelButton.UseVisualStyleBackColor = true;
+            this.requireAdministratorCancelButton.Click += new System.EventHandler(this.RequireAdministratorCancelButton_Click);
             // 
-            // yes
+            // requireAdministratorConfirmButton
             // 
-            this.yes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.yes.Location = new System.Drawing.Point(199, 72);
-            this.yes.Name = "yes";
-            this.yes.Size = new System.Drawing.Size(76, 23);
-            this.yes.TabIndex = 0;
-            this.yes.Text = "Перезапуск";
-            this.yes.UseVisualStyleBackColor = true;
-            this.yes.Click += new System.EventHandler(this.yes_Click);
+            this.requireAdministratorConfirmButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.requireAdministratorConfirmButton.Location = new System.Drawing.Point(214, 72);
+            this.requireAdministratorConfirmButton.Name = "requireAdministratorConfirmButton";
+            this.requireAdministratorConfirmButton.Size = new System.Drawing.Size(76, 23);
+            this.requireAdministratorConfirmButton.TabIndex = 0;
+            this.requireAdministratorConfirmButton.Text = "Перезапуск";
+            this.requireAdministratorConfirmButton.UseVisualStyleBackColor = true;
+            this.requireAdministratorConfirmButton.Click += new System.EventHandler(this.RequireAdministratorConfirmButton_Click);
             // 
             // currentFile
             // 
-            this.currentFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.currentFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.currentFile.BackColor = System.Drawing.Color.Transparent;
-            this.currentFile.Location = new System.Drawing.Point(19, 266);
+            this.currentFile.Location = new System.Drawing.Point(12, 261);
             this.currentFile.Name = "currentFile";
-            this.currentFile.Size = new System.Drawing.Size(273, 13);
+            this.currentFile.Size = new System.Drawing.Size(295, 38);
             this.currentFile.TabIndex = 14;
             this.currentFile.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // undo
+            // cancelButton
             // 
-            this.undo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.undo.Enabled = false;
-            this.undo.Location = new System.Drawing.Point(212, 311);
-            this.undo.Name = "undo";
-            this.undo.Size = new System.Drawing.Size(80, 23);
-            this.undo.TabIndex = 15;
-            this.undo.Text = "Отменить";
-            this.undo.UseVisualStyleBackColor = true;
-            this.undo.Click += new System.EventHandler(this.undo_Click);
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cancelButton.Enabled = false;
+            this.cancelButton.Location = new System.Drawing.Point(227, 331);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(80, 23);
+            this.cancelButton.TabIndex = 15;
+            this.cancelButton.Text = "Отменить";
+            this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.СancelButton_Click);
             // 
             // undoCheck
             // 
+            this.undoCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.undoCheck.AutoSize = true;
             this.undoCheck.Checked = true;
             this.undoCheck.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.undoCheck.Location = new System.Drawing.Point(169, 65);
+            this.undoCheck.Location = new System.Drawing.Point(169, 85);
             this.undoCheck.Name = "undoCheck";
             this.undoCheck.Size = new System.Drawing.Size(124, 17);
             this.undoCheck.TabIndex = 16;
             this.undoCheck.Text = "Отмена изменений";
             this.undoCheck.UseVisualStyleBackColor = true;
             // 
+            // replaceWorker
+            // 
+            this.replaceWorker.WorkerReportsProgress = true;
+            this.replaceWorker.WorkerSupportsCancellation = true;
+            this.replaceWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.ReplaceWorker_DoWork);
+            this.replaceWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.ReplaceWorker_ProgressChanged);
+            this.replaceWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.ReplaceWorker_RunWorkerCompleted);
+            // 
+            // cancelWorker
+            // 
+            this.cancelWorker.WorkerReportsProgress = true;
+            this.cancelWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.СancelWorker_DoWork);
+            this.cancelWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.СancelWorker_ProgressChanged);
+            this.cancelWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.СancelWorker_RunWorkerCompleted);
+            // 
+            // searchSubdirectoriesCheck
+            // 
+            this.searchSubdirectoriesCheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.searchSubdirectoriesCheck.AutoSize = true;
+            this.searchSubdirectoriesCheck.Checked = true;
+            this.searchSubdirectoriesCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.searchSubdirectoriesCheck.Location = new System.Drawing.Point(169, 108);
+            this.searchSubdirectoriesCheck.Name = "searchSubdirectoriesCheck";
+            this.searchSubdirectoriesCheck.Size = new System.Drawing.Size(152, 17);
+            this.searchSubdirectoriesCheck.TabIndex = 17;
+            this.searchSubdirectoriesCheck.Text = "Поиск в поддиректориях";
+            this.searchSubdirectoriesCheck.UseVisualStyleBackColor = true;
+            // 
+            // menuStrip
+            // 
+            this.menuStrip.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuStrip.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip.Name = "menuStrip";
+            this.menuStrip.Size = new System.Drawing.Size(319, 24);
+            this.menuStrip.TabIndex = 0;
+            this.menuStrip.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.logsStripMenuItem,
+            this.historyStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.fileToolStripMenuItem.Text = "Файл";
+            // 
+            // logsStripMenuItem
+            // 
+            this.logsStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.logsStripMenuItem.Name = "logsStripMenuItem";
+            this.logsStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logsStripMenuItem.Text = "Логи";
+            this.logsStripMenuItem.Click += new System.EventHandler(this.LogsStripMenuItem_Click);
+            // 
+            // historyStripMenuItem
+            // 
+            this.historyStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.historyStripMenuItem.Name = "historyStripMenuItem";
+            this.historyStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.historyStripMenuItem.Text = "История";
+            this.historyStripMenuItem.Click += new System.EventHandler(this.HistoryStripMenuItem_Click);
+            // 
             // Overwritten
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(304, 346);
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ClientSize = new System.Drawing.Size(319, 366);
+            this.Controls.Add(this.searchSubdirectoriesCheck);
             this.Controls.Add(this.undoCheck);
-            this.Controls.Add(this.undo);
+            this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.currentFile);
             this.Controls.Add(this.requireAdministrator);
-            this.Controls.Add(this.nameChange);
-            this.Controls.Add(this.fullName);
-            this.Controls.Add(this.replace);
-            this.Controls.Add(this.searchDirectory);
+            this.Controls.Add(this.nameChangeCheck);
+            this.Controls.Add(this.fullNameCheck);
+            this.Controls.Add(this.replaceButton);
+            this.Controls.Add(this.searchDirectoryCombo);
             this.Controls.Add(this.progressBar);
-            this.Controls.Add(this.replacement);
-            this.Controls.Add(this.search);
-            this.Controls.Add(this.replacementSelection);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.searchDirectorySelection);
+            this.Controls.Add(this.replacementCombo);
+            this.Controls.Add(this.searchCombo);
+            this.Controls.Add(this.replacementSelectionButton);
+            this.Controls.Add(this.searchDirectoryLabel);
+            this.Controls.Add(this.searchDirectorySelectionButton);
+            this.Controls.Add(this.menuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip;
             this.MaximizeBox = false;
             this.Name = "Overwritten";
             this.Text = "Overwritten";
             this.requireAdministrator.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.requireAdministratorPicture)).EndInit();
+            this.menuStrip.ResumeLayout(false);
+            this.menuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -310,24 +387,31 @@ namespace Overwritten
         #endregion
 
         private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.Button replace;
-        private System.Windows.Forms.OpenFileDialog replacementFile;
-        private System.Windows.Forms.FolderBrowserDialog searchFolder;
-        private System.Windows.Forms.Button replacementSelection;
-        private System.Windows.Forms.Button searchDirectorySelection;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox search;
-        private System.Windows.Forms.ComboBox replacement;
-        private System.Windows.Forms.ComboBox searchDirectory;
-        private System.Windows.Forms.CheckBox fullName;
-        private System.Windows.Forms.CheckBox nameChange;
+        private System.Windows.Forms.Button replaceButton;
+        private System.Windows.Forms.OpenFileDialog replacementSearch;
+        private System.Windows.Forms.FolderBrowserDialog searchDirectorySearch;
+        private System.Windows.Forms.Button replacementSelectionButton;
+        private System.Windows.Forms.Button searchDirectorySelectionButton;
+        private System.Windows.Forms.Label searchDirectoryLabel;
+        private System.Windows.Forms.ComboBox searchCombo;
+        private System.Windows.Forms.ComboBox replacementCombo;
+        private System.Windows.Forms.ComboBox searchDirectoryCombo;
+        private System.Windows.Forms.CheckBox fullNameCheck;
+        private System.Windows.Forms.CheckBox nameChangeCheck;
         private System.Windows.Forms.Panel requireAdministrator;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Button cancel;
-        private System.Windows.Forms.Button yes;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.PictureBox requireAdministratorPicture;
+        private System.Windows.Forms.Button requireAdministratorCancelButton;
+        private System.Windows.Forms.Button requireAdministratorConfirmButton;
+        private System.Windows.Forms.Label requireAdministratorLabel;
         private System.Windows.Forms.Label currentFile;
-        private System.Windows.Forms.Button undo;
+        private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.CheckBox undoCheck;
+        private System.ComponentModel.BackgroundWorker replaceWorker;
+        private System.ComponentModel.BackgroundWorker cancelWorker;
+        private System.Windows.Forms.CheckBox searchSubdirectoriesCheck;
+        private System.Windows.Forms.MenuStrip menuStrip;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem logsStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem historyStripMenuItem;
     }
 }

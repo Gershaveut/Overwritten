@@ -1,88 +1,102 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Overwritten
 {
     public partial class Overwritten : Form
     {
-        public static List<UndoFile> undoFiles = new List<UndoFile>();
-        private List<string> createFiles = new List<string>();
+        public readonly List<UndoFile> undoFiles = new List<UndoFile>();
+        private readonly List<string> createFiles = new List<string>();
+        private List<string> files;
+        private Logs logsForm = new Logs();
+        private History historyForm = new History();
+
+        private bool fullNameCheckChecked;
+        private string searchComboText;
+        private bool nameChangeCheckChecked;
+        private bool undoCheckChecked;
+        private string replacementComboText;
 
         public Overwritten()
         {
             InitializeComponent();
         }
 
-        private void replacementSelection_Click(object sender, EventArgs e)
+        private void ReplaceButton_Click(object sender, EventArgs e)
         {
-            replacementFile.ShowDialog();
-            if (replacementFile.FileName != "")
-                replacement.Text = replacementFile.FileName;
+            replaceButton.Enabled = false;
+
+            if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
+            {
+                files = GetAllFiles(searchDirectoryCombo.Text);
+                progressBar.Maximum = files.Count;
+                progressBar.Visible = true;
+
+                fullNameCheckChecked = fullNameCheck.Checked;
+                searchComboText = searchCombo.Text;
+
+                nameChangeCheckChecked = nameChangeCheck.Checked;
+                undoCheckChecked = undoCheck.Checked;
+                replacementComboText = replacementCombo.Text;
+
+                if (!replaceWorker.IsBusy)
+                    replaceWorker.RunWorkerAsync();
+                else
+                    MessageBox.Show("Замена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             else
-                ComboBoxs_Leave(replacement, e);
+            {
+                MessageBox.Show("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                replaceButton.Enabled = true;
+            }
         }
 
-        private void searchDirectorySelection_Click(object sender, EventArgs e)
+        private void ReplaceWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            searchFolder.ShowDialog();
-            searchDirectory.Text = searchFolder.SelectedPath;
-        }
+            BackgroundWorker worker = sender as BackgroundWorker;
 
-        private void replace_Click(object sender, EventArgs e)
-        {
-            replace.Enabled = false;
-            undo.Enabled = false;
-            replace.Refresh();
-            undo.Refresh();
+            foreach (UndoFile undoFile in undoFiles)
+            {
+                undoFile.Delete();
+            }
+            undoFiles.Clear();
+
             try
             {
-                undoFiles.Clear();
-                foreach (UndoFile file in Overwritten.undoFiles)
-                {
-                    file.Delete();
-                }
-
-                List<string> files = GetAllFiles(searchDirectory.Text);
-                progressBar.Maximum = files.Count;
-                replace.Enabled = false;
                 foreach (string file in files)
                 {
-                    if (fullName.Checked ? search.Text == Path.GetFileName(file) : search.Text.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any())
+                    if (fullNameCheckChecked ? searchComboText == Path.GetFileName(file) : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any())
                     {
-                        currentFile.Text = file;
-                        currentFile.Refresh();
+                        if (worker.CancellationPending == true)
+                        {
+                            e.Cancel = true;
+                            break;
+                        }
 
-                        if (undoCheck.Checked)
+                        if (undoCheckChecked)
                             undoFiles.Add(new UndoFile(file));
 
-                        if (nameChange.Checked)
+                        if (nameChangeCheckChecked)
                         {
-                            File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)));
-                            File.Copy(replacement.Text, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)), true);
-                            if (undoCheck.Checked)
-                                createFiles.Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacement.Text)));
-                            if (Path.GetFileName(file) != Path.GetFileName(replacement.Text))
+                            File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
+                            File.Copy(replacementComboText, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)), true);
+
+                            if (undoCheckChecked)
+                                createFiles.Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
+                            if (Path.GetFileName(file) != Path.GetFileName(replacementComboText))
                                 File.Delete(file);
                         }
                         else
-                            File.Copy(replacement.Text, file, true);
+                            File.Copy(replacementComboText, file, true);
 
-                        progressBar.PerformStep();
-                    }
-                }
-
-                if (progressBar.Value > 0)
-                    MessageBox.Show("Дело сделано", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                else
-                {
-                    if (MessageBox.Show("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry)
-                    {
-                        replace_Click(replace, null);
+                        worker.ReportProgress(0, file);
                     }
                 }
             }
@@ -92,22 +106,115 @@ namespace Overwritten
                 {
                     requireAdministrator.Visible = true;
                 }
+                else if (ex is DirectoryNotFoundException)
+                {
+                    MessageBox.Show(ex.Message, "Ошибка области поиска", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (ex is FileNotFoundException)
+                {
+                    MessageBox.Show(ex.Message, "Ошибка заменителя", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else if (ex is IOException)
+                {
+                    MessageBox.Show(ex.Message, "Ошибка изменения названия", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 else
                 {
                     MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Console.WriteLine(ex);
                 }
-            }
-            currentFile.Text = "";
-            progressBar.Value = 0;
-            if (!requireAdministrator.Visible)
-            {
-                replace.Enabled = true;
-                СheckUndo();
+
+                LogsWrite(ex.ToString());
             }
         }
 
-        private static List<string> GetAllFiles(string directoryPath)
+        private void ReplaceWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            WorkersProgressChanged("Замена: " + (string)e.UserState);
+        }
+
+        private void ReplaceWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            WorkersRunWorkerCompleted();
+
+            if (!e.Cancelled)
+            {
+                if (progressBar.Value > 0)
+                {
+                    progressBar.Value = 0;
+                    progressBar.Visible = false;
+                    MessageBox.Show("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+                    DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell
+                    {
+                        Value = searchCombo.Text
+                    };
+                    DataGridViewTextBoxCell replacementCell = new DataGridViewTextBoxCell
+                    {
+                        Value = replacementCombo.Text
+                    };
+                    DataGridViewTextBoxCell searchDirectoryCell = new DataGridViewTextBoxCell
+                    {
+                        Value = searchDirectoryCombo.Text
+                    };
+                    DataGridViewCheckBoxCell fullNameCell = new DataGridViewCheckBoxCell
+                    {
+                        Value = fullNameCheck.Checked
+                    };
+                    DataGridViewCheckBoxCell nameChangeCell = new DataGridViewCheckBoxCell
+                    {
+                        Value = nameChangeCheck.Checked
+                    };
+                    DataGridViewCheckBoxCell undoCell = new DataGridViewCheckBoxCell
+                    {
+                        Value = undoCheck.Checked
+                    };
+                    DataGridViewCheckBoxCell searchSubdirectoriesCell = new DataGridViewCheckBoxCell
+                    {
+                        Value = searchSubdirectoriesCheck.Checked
+                    };
+                    DataGridViewButtonCell cancelButtonCell = new DataGridViewButtonCell
+                    {
+                        Value = "Отмена"
+                    };
+
+                    DataGridViewRow row = new DataGridViewRow();
+                    row.Cells.AddRange(searchCell, replacementCell, searchDirectoryCell, fullNameCell, nameChangeCell, undoCell, searchSubdirectoriesCell, cancelButtonCell);
+                    historyForm.historyDataGridView.Rows.Add(row);
+
+                    LogsWrite("Запись замены в историю");
+                }
+                else
+                {
+                    if (MessageBox.Show("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry)
+                    {
+                        ReplaceButton_Click(replaceButton, e);
+                    }
+                }
+
+                if (!requireAdministrator.Visible)
+                {
+                    replaceButton.Enabled = true;
+                    СheckUndo();
+                }
+            }
+        }
+
+        private void WorkersProgressChanged(string currentFileName)
+        {
+            currentFile.Text = currentFileName;
+            LogsWrite(currentFileName);
+
+            progressBar.PerformStep();
+            СheckUndo();
+        }
+
+        private void WorkersRunWorkerCompleted()
+        {
+            LogsUpdate();
+            currentFile.Text = "";
+        }
+
+        private List<string> GetAllFiles(string directoryPath)
         {
             List<string> files = new List<string>();
             foreach (string file in Directory.GetFiles(directoryPath))
@@ -115,38 +222,92 @@ namespace Overwritten
                 files.Add(file);
             }
 
-            foreach (string subDirectory in Directory.GetDirectories(directoryPath))
+            if (searchSubdirectoriesCheck.Checked)
             {
-                files.AddRange(GetAllFiles(subDirectory));
+                foreach (string subDirectory in Directory.GetDirectories(directoryPath))
+                {
+                    files.AddRange(GetAllFiles(subDirectory));
+                }
             }
 
             return files;
         }
 
-        private void ComboBoxs_Enter(object sender, EventArgs e)
+        private void СancelButton_Click(object sender, EventArgs e)
         {
-            if (((ComboBox)sender).Text == (string)((ComboBox)sender).Tag)
-                ((ComboBox)sender).Text = "";
+            if (replaceWorker.IsBusy)
+                replaceWorker.CancelAsync();
+            else
+            {
+                historyForm.historyDataGridView.Rows.RemoveAt(historyForm.historyDataGridView.Rows.Count - 1);
+                
+                LogsWrite("Удаление последней замены в истории");
+            }
 
-            ((ComboBox)sender).ForeColor = Color.Black;
+            replaceButton.Enabled = false;
+            cancelButton.Enabled = false;
+            progressBar.Value = 0;
+            progressBar.Maximum = undoFiles.Count + createFiles.Count;
+            progressBar.Visible = true;
+
+            if (!cancelWorker.IsBusy)
+                cancelWorker.RunWorkerAsync();
+            else
+                MessageBox.Show("Отмена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void ComboBoxs_Leave(object sender, EventArgs e)
+        private void СheckUndo()
         {
-            if (string.IsNullOrWhiteSpace(((ComboBox)sender).Text))
+            if (!cancelWorker.IsBusy)
+                cancelButton.Enabled = undoFiles.Count > 0;
+        }
+
+        private void СancelWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            try
             {
-                ((ComboBox)sender).Text = (string)((ComboBox)sender).Tag;
-                ((ComboBox)sender).ForeColor = SystemColors.GrayText;
+                foreach (string file in createFiles)
+                {
+                    File.Delete(file);
+
+                    worker.ReportProgress(0, "Удаление: " + file);
+                }
+
+                foreach (UndoFile file in undoFiles)
+                {
+                    file.Undo();
+
+                    worker.ReportProgress(0, "Возвращение: " + file.undoPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogsWrite(ex.ToString());
             }
         }
 
-        private void ComboBoxs_TextChanged(object sender, EventArgs e)
+        private void СancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (((ComboBox)sender).Text != (string)((ComboBox)sender).Tag)
-                ((ComboBox)sender).ForeColor = Color.Black;
+            WorkersProgressChanged((string)e.UserState);
         }
 
-        private void yes_Click(object sender, EventArgs e)
+        private void СancelWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            WorkersRunWorkerCompleted();
+
+            progressBar.Value = 0;
+            progressBar.Visible = false;
+
+            MessageBox.Show("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+            undoFiles.Clear();
+            replaceButton.Enabled = true;
+        }
+
+        private void RequireAdministratorConfirmButton_Click(object sender, EventArgs e)
         {
             try
             {
@@ -158,59 +319,86 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                LogsWrite(ex.ToString());
             }
         }
 
-        private void cancel_Click(object sender, EventArgs e)
+        private void ReplacementSelectionButton_Click(object sender, EventArgs e)
+        {
+            replacementSearch.ShowDialog();
+
+            if (replacementSearch.FileName != "")
+                replacementCombo.Text = replacementSearch.FileName;
+            else
+                ComboBoxs_Leave(replacementCombo, e);
+        }
+
+        private void SearchDirectorySelectionButton_Click(object sender, EventArgs e)
+        {
+            searchDirectorySearch.ShowDialog();
+            searchDirectoryCombo.Text = searchDirectorySearch.SelectedPath;
+        }
+
+        private void ComboBoxs_Enter(object sender, EventArgs e)
+        {
+            ComboBox comboBoxSender = sender as ComboBox;
+
+            if (comboBoxSender.Text == (string)comboBoxSender.Tag)
+                comboBoxSender.Text = "";
+
+            comboBoxSender.ForeColor = Color.Black;
+        }
+
+        private void ComboBoxs_Leave(object sender, EventArgs e)
+        {
+            ComboBox comboBoxSender = sender as ComboBox;
+
+            if (string.IsNullOrWhiteSpace(comboBoxSender.Text))
+            {
+                comboBoxSender.Text = (string)comboBoxSender.Tag;
+                comboBoxSender.ForeColor = SystemColors.GrayText;
+            }
+        }
+
+        private void ComboBoxs_TextChanged(object sender, EventArgs e)
+        {
+            ComboBox comboBoxSender = sender as ComboBox;
+
+            if (comboBoxSender.Text != (string)comboBoxSender.Tag)
+                comboBoxSender.ForeColor = Color.Black;
+        }
+
+        private void RequireAdministratorCancelButton_Click(object sender, EventArgs e)
         {
             requireAdministrator.Visible = false;
             progressBar.Value = 0;
-            replace.Enabled = true;
+            progressBar.Visible = false;
+            replaceButton.Enabled = true;
         }
 
-        private void undo_Click(object sender, EventArgs e)
+        private void LogsStripMenuItem_Click(object sender, EventArgs e)
         {
-            replace.Enabled = false;
-            undo.Enabled = false;
-            replace.Refresh();
-            undo.Refresh();
-            progressBar.Maximum = undoFiles.Count + createFiles.Count;
-            try
-            {
-                foreach (string file in createFiles)
-                {
-                    currentFile.Text = file;
-                    currentFile.Refresh();
-                    File.Delete(file);
-                    progressBar.PerformStep();
-                }
-                foreach (UndoFile file in undoFiles)
-                {
-                    currentFile.Text = file.undoPath;
-                    currentFile.Refresh();
-                    file.Undo();
-                    progressBar.PerformStep();
-                }
-                MessageBox.Show("Дело сделано", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Console.WriteLine(ex);
-            }
-            currentFile.Text = "";
-            progressBar.Value = 0;
-            undoFiles.Clear();
-            replace.Enabled = true;
+            logsForm.ShowDialog();
         }
 
-        private void СheckUndo()
+        private void LogsWrite(string text)
         {
-            if (undoFiles.Count > 0)
-            {
-                undo.Enabled = true;
-            }
+            Console.WriteLine(text);
+
+            if (logsForm.logs != "")
+                logsForm.logs = logsForm.logs + "\n" + text;
+            else
+                logsForm.logs = text;
+        }
+
+        private void LogsUpdate()
+        {
+            logsForm.logsTextBox.Text = logsForm.logs;
+        }
+
+        private void HistoryStripMenuItem_Click(object sender, EventArgs e)
+        {
+            historyForm.ShowDialog();
         }
     }
 }

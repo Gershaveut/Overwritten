@@ -5,14 +5,17 @@ namespace Overwritten
 {
     internal static class Program
     {
+        public static Overwritten overwritten;
+
         [STAThread]
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Overwritten());
+            overwritten = new Overwritten();
+            Application.Run(overwritten);
 
-            foreach (UndoFile file in Overwritten.undoFiles)
+            foreach (UndoFile file in overwritten.undoFiles)
             {
                 file.Delete();
             }
