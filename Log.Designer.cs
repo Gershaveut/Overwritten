@@ -1,6 +1,6 @@
 ﻿namespace Overwritten
 {
-    partial class Logs
+    partial class Log
     {
         /// <summary>
         /// Required designer variable.
@@ -28,24 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Logs));
-            this.logsTextBox = new System.Windows.Forms.RichTextBox();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Log));
+            this.logTextBox = new System.Windows.Forms.RichTextBox();
             this.BackButton = new System.Windows.Forms.Button();
             this.CopyButton = new System.Windows.Forms.Button();
             this.ClearButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // logsTextBox
+            // logTextBox
             // 
-            this.logsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logsTextBox.Location = new System.Drawing.Point(12, 12);
-            this.logsTextBox.Name = "logsTextBox";
-            this.logsTextBox.ReadOnly = true;
-            this.logsTextBox.Size = new System.Drawing.Size(460, 358);
-            this.logsTextBox.TabIndex = 0;
-            this.logsTextBox.Text = "";
+            this.logTextBox.Location = new System.Drawing.Point(12, 12);
+            this.logTextBox.Name = "logTextBox";
+            this.logTextBox.ReadOnly = true;
+            this.logTextBox.Size = new System.Drawing.Size(460, 358);
+            this.logTextBox.TabIndex = 0;
+            this.logTextBox.Text = "";
             // 
             // BackButton
             // 
@@ -80,7 +80,7 @@
             this.ClearButton.UseVisualStyleBackColor = true;
             this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
             // 
-            // Logs
+            // Log
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -88,17 +88,17 @@
             this.Controls.Add(this.ClearButton);
             this.Controls.Add(this.CopyButton);
             this.Controls.Add(this.BackButton);
-            this.Controls.Add(this.logsTextBox);
+            this.Controls.Add(this.logTextBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Logs";
-            this.Text = "Логи";
+            this.Name = "Log";
+            this.Text = "Журнал";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        public System.Windows.Forms.RichTextBox logsTextBox;
+        public System.Windows.Forms.RichTextBox logTextBox;
         private System.Windows.Forms.Button BackButton;
         private System.Windows.Forms.Button CopyButton;
         private System.Windows.Forms.Button ClearButton;

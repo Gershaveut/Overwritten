@@ -14,7 +14,7 @@ namespace Overwritten
         public readonly List<UndoFile> undoFiles = new List<UndoFile>();
         private readonly List<string> createFiles = new List<string>();
         private List<string> files;
-        private Logs logsForm = new Logs();
+        private Log logForm = new Log();
         private History historyForm = new History();
 
         private bool fullNameCheckChecked;
@@ -26,12 +26,14 @@ namespace Overwritten
         public Overwritten()
         {
             InitializeComponent();
+
+            LogsWrite("Инициализация программы", LogLevel.Info);
         }
 
         private void ReplaceButton_Click(object sender, EventArgs e)
         {
             replaceButton.Enabled = false;
-
+            LogsWrite("123123", LogLevel.Debug);
             if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
             {
                 files = GetAllFiles(searchDirectoryCombo.Text);
@@ -48,11 +50,11 @@ namespace Overwritten
                 if (!replaceWorker.IsBusy)
                     replaceWorker.RunWorkerAsync();
                 else
-                    MessageBox.Show("Замена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowMessageBoxWithLog("Замена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
             }
             else
             {
-                MessageBox.Show("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowMessageBoxWithLog("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
                 replaceButton.Enabled = true;
             }
         }
@@ -102,27 +104,15 @@ namespace Overwritten
             catch (Exception ex)
             {
                 if (ex is UnauthorizedAccessException)
-                {
                     requireAdministrator.Visible = true;
-                }
                 else if (ex is DirectoryNotFoundException)
-                {
-                    MessageBox.Show(ex.Message, "Ошибка области поиска", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                    ShowMessageBoxWithLog(ex.Message, "Ошибка области поиска", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
                 else if (ex is FileNotFoundException)
-                {
-                    MessageBox.Show(ex.Message, "Ошибка заменителя", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                    ShowMessageBoxWithLog(ex.Message, "Ошибка заменителя", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
                 else if (ex is IOException)
-                {
-                    MessageBox.Show(ex.Message, "Ошибка изменения названия", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                    ShowMessageBoxWithLog(ex.Message, "Ошибка изменения названия", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
                 else
-                {
-                    MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-                LogsWrite(ex.ToString());
+                    ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
             }
         }
 
@@ -141,7 +131,7 @@ namespace Overwritten
                 {
                     progressBar.Value = 0;
                     progressBar.Visible = false;
-                    MessageBox.Show("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
 
                     DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell
                     {
@@ -180,11 +170,11 @@ namespace Overwritten
                     row.Cells.AddRange(searchCell, replacementCell, searchDirectoryCell, fullNameCell, nameChangeCell, undoCell, searchSubdirectoriesCell, cancelButtonCell);
                     historyForm.historyDataGridView.Rows.Add(row);
 
-                    LogsWrite("Запись замены в историю");
+                    LogsWrite("Запись замены в историю", LogLevel.Info);
                 }
                 else
                 {
-                    if (MessageBox.Show("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry)
+                    if (ShowMessageBoxWithLog("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning, LogLevel.Warn) == DialogResult.Retry)
                     {
                         ReplaceButton_Click(replaceButton, e);
                     }
@@ -206,7 +196,7 @@ namespace Overwritten
         private void WorkersProgressChanged(string currentFileName)
         {
             currentFile.Text = currentFileName;
-            LogsWrite(currentFileName);
+            LogsWrite(currentFileName, LogLevel.Info);
 
             progressBar.PerformStep();
             СheckUndo();
@@ -214,7 +204,6 @@ namespace Overwritten
 
         private void WorkersRunWorkerCompleted()
         {
-            LogsUpdate();
             currentFile.Text = "";
         }
 
@@ -249,12 +238,10 @@ namespace Overwritten
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Ошибка удаления истории", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    LogsWrite(ex.ToString());
+                    ShowMessageBoxWithLog("Ошибка удаления истории", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
                 }
 
-                LogsWrite("Удаление последней замены в истории");
+                LogsWrite("Удаление последней замены в истории", LogLevel.Info);
             }
 
             replaceButton.Enabled = false;
@@ -266,7 +253,7 @@ namespace Overwritten
             if (!cancelWorker.IsBusy)
                 cancelWorker.RunWorkerAsync();
             else
-                MessageBox.Show("Отмена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ShowMessageBoxWithLog("Отмена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
         }
 
         private void СheckUndo()
@@ -305,9 +292,7 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                LogsWrite(ex.ToString());
+                ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
             }
         }
 
@@ -323,7 +308,7 @@ namespace Overwritten
             progressBar.Value = 0;
             progressBar.Visible = false;
 
-            MessageBox.Show("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
 
             undoFiles.Clear();
 
@@ -342,7 +327,7 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
-                LogsWrite(ex.ToString());
+                LogsWrite(ex.ToString(), LogLevel.Error);
             }
         }
 
@@ -368,7 +353,7 @@ namespace Overwritten
 
             if (comboBoxSender.Text == (string)comboBoxSender.Tag)
                 comboBoxSender.Text = "";
-
+            
             comboBoxSender.ForeColor = Color.Black;
         }
 
@@ -402,27 +387,57 @@ namespace Overwritten
 
         private void LogsStripMenuItem_Click(object sender, EventArgs e)
         {
-            logsForm.ShowDialog();
+            logForm.ShowDialog();
         }
 
-        private void LogsWrite(string text)
+        private void LogsWrite(string text, LogLevel logLevel)
         {
+            text = $"[{DateTime.Now.ToLongTimeString()}] {text}";
+
             Console.WriteLine(text);
-
-            if (logsForm.logs != "")
-                logsForm.logs = logsForm.logs + "\n" + text;
+            
+            if (logForm.logTextBox.Text != "")
+                logForm.logTextBox.AppendText("\n" + text);
             else
-                logsForm.logs = text;
+                logForm.logTextBox.AppendText(text);
+            
+            logForm.logTextBox.Select(logForm.logTextBox.TextLength - text.Length, logForm.logTextBox.TextLength);
+
+            Color logLevelColor;
+
+            switch (logLevel)
+            {
+                default:
+                    logLevelColor = logForm.logTextBox.ForeColor;
+                    break;
+                case LogLevel.Info:
+                    logLevelColor = logForm.logTextBox.ForeColor;
+                    break;
+                case LogLevel.Warn:
+                    logLevelColor = Color.Yellow;
+                    break;
+                case LogLevel.Error:
+                    logLevelColor = Color.Red;
+                    break;
+                case LogLevel.Debug:
+                    logLevelColor = Color.Gray;
+                    break;
+            }
+
+            logForm.logTextBox.SelectionColor = logLevelColor;
+
+            logForm.logTextBox.DeselectAll();
         }
 
-        private void LogsUpdate()
+        private DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LogLevel logLevel)
         {
-            logsForm.logsTextBox.Text = logsForm.logs;
+            LogsWrite(text, logLevel);
+            return MessageBox.Show(text, caption, buttons, icon);
         }
 
         private void HistoryStripMenuItem_Click(object sender, EventArgs e)
         {
             historyForm.ShowDialog();
-        }
+        }     
     }
 }

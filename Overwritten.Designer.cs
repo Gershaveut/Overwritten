@@ -336,7 +336,7 @@ namespace Overwritten
             // 
             this.logsStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.logsStripMenuItem.Name = "logsStripMenuItem";
-            this.logsStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logsStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.logsStripMenuItem.Text = "Логи";
             this.logsStripMenuItem.Click += new System.EventHandler(this.LogsStripMenuItem_Click);
             // 
@@ -344,7 +344,7 @@ namespace Overwritten
             // 
             this.historyStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.historyStripMenuItem.Name = "historyStripMenuItem";
-            this.historyStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.historyStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.historyStripMenuItem.Text = "История";
             this.historyStripMenuItem.Click += new System.EventHandler(this.HistoryStripMenuItem_Click);
             // 

@@ -10,11 +10,9 @@ using System.Windows.Forms;
 
 namespace Overwritten
 {
-    public partial class Logs : Form
+    public partial class Log : Form
     {
-        public string logs;
-
-        public Logs()
+        public Log()
         {
             InitializeComponent();
         }
@@ -26,14 +24,13 @@ namespace Overwritten
 
         private void CopyButton_Click(object sender, EventArgs e)
         {
-            if (logsTextBox.Text != "")
-                Clipboard.SetText(logsTextBox.Text);
+            if (logTextBox.Text != "")
+                Clipboard.SetText(logTextBox.Text);
         }
 
         private void ClearButton_Click(object sender, EventArgs e)
         {
-            logs = "";
-            logsTextBox.Text = logs;
+            logTextBox.Clear();
         }
     }
 }
