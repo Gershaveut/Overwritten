@@ -33,7 +33,7 @@ namespace Overwritten
         private void ReplaceButton_Click(object sender, EventArgs e)
         {
             replaceButton.Enabled = false;
-            LogsWrite("123123", LogLevel.Debug);
+
             if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
             {
                 files = GetAllFiles(searchDirectoryCombo.Text);
@@ -103,6 +103,8 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
+                LogsWrite(ex.ToString(), LogLevel.Error);
+
                 if (ex is UnauthorizedAccessException)
                     requireAdministrator.Visible = true;
                 else if (ex is DirectoryNotFoundException)
@@ -238,6 +240,8 @@ namespace Overwritten
                 }
                 catch (Exception ex)
                 {
+                    LogsWrite(ex.ToString(), LogLevel.Error);
+
                     ShowMessageBoxWithLog("Ошибка удаления истории", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
                 }
 
@@ -292,6 +296,8 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
+                LogsWrite(ex.ToString(), LogLevel.Error);
+
                 ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
             }
         }
