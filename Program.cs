@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OFGmCoreCS.Argument;
+using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -7,6 +9,7 @@ namespace Overwritten
     {
         public static bool debug;
         public static string[] args;
+        public static ArgumentHandler argumentHandler;
 
         public static Overwritten overwritten;
 
@@ -19,16 +22,13 @@ namespace Overwritten
 
             Program.args = args;
 
-            foreach (string arg in args)
+            argumentHandler = new ArgumentHandler(new HashSet<AbstractArgument>
             {
-                switch (Util.ArgBoolName(arg))
-                {
-                    case "debug":
-                        debug = true;
-                        break;
-                }
-            }
+                new Argument("debug", () => debug = true)
+            });
 
+            argumentHandler.ArgumentsInvoke(args);
+            
             try
             {
                 Application.EnableVisualStyles();
