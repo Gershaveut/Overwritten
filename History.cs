@@ -50,5 +50,11 @@ namespace Overwritten
 
             historyDataGridView.Columns.AddRange(searchColumn, replacementColumn, searchDirectoryColumn, fullNameColumn, nameChangeColumn, undoColumn, searchSubdirectoriesColumn, cancelButtonColum);
         }
+
+        private void History_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Visible = false;
+            e.Cancel = true;
+        }
     }
 }

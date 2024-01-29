@@ -25,5 +25,20 @@ namespace Overwritten
         {
             logTextBox.Clear();
         }
+
+        private void LogTextBox_VisibleChanged(object sender, EventArgs e)
+        {
+            if (logTextBox.Visible)
+            {
+                logTextBox.SelectionStart = logTextBox.TextLength;
+                logTextBox.ScrollToCaret();
+            }
+        }
+
+        private void Log_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Visible = false;
+            e.Cancel = true;
+        }
     }
 }

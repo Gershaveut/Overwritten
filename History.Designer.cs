@@ -56,6 +56,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "History";
             this.Text = "История";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.History_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.historyDataGridView)).EndInit();
             this.ResumeLayout(false);
 

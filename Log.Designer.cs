@@ -46,6 +46,7 @@
             this.logTextBox.Size = new System.Drawing.Size(460, 358);
             this.logTextBox.TabIndex = 0;
             this.logTextBox.Text = "";
+            this.logTextBox.VisibleChanged += new System.EventHandler(this.LogTextBox_VisibleChanged);
             // 
             // BackButton
             // 
@@ -92,6 +93,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Log";
             this.Text = "Журнал";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Log_FormClosing);
             this.ResumeLayout(false);
 
         }
