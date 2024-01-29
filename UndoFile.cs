@@ -4,8 +4,9 @@ namespace Overwritten
 {
     public class UndoFile
     {
-        private string file;
-        public string undoPath;
+        private readonly string file;
+
+        public readonly string undoPath;
 
         public UndoFile(string file)
         {

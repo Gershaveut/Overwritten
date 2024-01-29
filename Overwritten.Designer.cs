@@ -100,9 +100,9 @@ namespace Overwritten
             this.searchCombo.TabIndex = 8;
             this.searchCombo.Tag = "Поиск";
             this.searchCombo.Text = "Поиск";
-            this.searchCombo.TextChanged += new System.EventHandler(this.ComboBoxs_TextChanged);
-            this.searchCombo.Enter += new System.EventHandler(this.ComboBoxs_Enter);
-            this.searchCombo.Leave += new System.EventHandler(this.ComboBoxs_Leave);
+            this.searchCombo.TextChanged += new System.EventHandler(this.ComboBoxes_TextChanged);
+            this.searchCombo.Enter += new System.EventHandler(this.ComboBoxes_Enter);
+            this.searchCombo.Leave += new System.EventHandler(this.ComboBoxes_Leave);
             // 
             // replacementSelectionButton
             // 
@@ -150,9 +150,9 @@ namespace Overwritten
             this.replacementCombo.TabIndex = 9;
             this.replacementCombo.Tag = "Заменить";
             this.replacementCombo.Text = "Заменить";
-            this.replacementCombo.TextChanged += new System.EventHandler(this.ComboBoxs_TextChanged);
-            this.replacementCombo.Enter += new System.EventHandler(this.ComboBoxs_Enter);
-            this.replacementCombo.Leave += new System.EventHandler(this.ComboBoxs_Leave);
+            this.replacementCombo.TextChanged += new System.EventHandler(this.ComboBoxes_TextChanged);
+            this.replacementCombo.Enter += new System.EventHandler(this.ComboBoxes_Enter);
+            this.replacementCombo.Leave += new System.EventHandler(this.ComboBoxes_Leave);
             // 
             // searchDirectoryCombo
             // 
@@ -269,7 +269,7 @@ namespace Overwritten
             this.cancelButton.TabIndex = 15;
             this.cancelButton.Text = "Отменить";
             this.cancelButton.UseVisualStyleBackColor = true;
-            this.cancelButton.Click += new System.EventHandler(this.СancelButton_Click);
+            this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // undoCheck
             // 
@@ -295,9 +295,9 @@ namespace Overwritten
             // cancelWorker
             // 
             this.cancelWorker.WorkerReportsProgress = true;
-            this.cancelWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.СancelWorker_DoWork);
-            this.cancelWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.СancelWorker_ProgressChanged);
-            this.cancelWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.СancelWorker_RunWorkerCompleted);
+            this.cancelWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.CancelWorker_DoWork);
+            this.cancelWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.CancelWorker_ProgressChanged);
+            this.cancelWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.CancelWorker_RunWorkerCompleted);
             // 
             // searchSubdirectoriesCheck
             // 
@@ -336,15 +336,15 @@ namespace Overwritten
             // 
             this.logsStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.logsStripMenuItem.Name = "logsStripMenuItem";
-            this.logsStripMenuItem.Size = new System.Drawing.Size(121, 22);
-            this.logsStripMenuItem.Text = "Логи";
+            this.logsStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logsStripMenuItem.Text = "Журнал";
             this.logsStripMenuItem.Click += new System.EventHandler(this.LogsStripMenuItem_Click);
             // 
             // historyStripMenuItem
             // 
             this.historyStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.historyStripMenuItem.Name = "historyStripMenuItem";
-            this.historyStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.historyStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.historyStripMenuItem.Text = "История";
             this.historyStripMenuItem.Click += new System.EventHandler(this.HistoryStripMenuItem_Click);
             // 

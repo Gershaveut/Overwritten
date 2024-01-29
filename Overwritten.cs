@@ -13,10 +13,10 @@ namespace Overwritten
     {
         public readonly List<UndoFile> undoFiles = new List<UndoFile>();
         private readonly List<string> createFiles = new List<string>();
+        private readonly Log logForm = new Log();
+        private readonly History historyForm = new History();
         private List<string> files;
-        private Log logForm = new Log();
-        private History historyForm = new History();
-
+        
         private bool fullNameCheckChecked;
         private string searchComboText;
         private bool nameChangeCheckChecked;
@@ -50,7 +50,7 @@ namespace Overwritten
                 if (!replaceWorker.IsBusy)
                     replaceWorker.RunWorkerAsync();
                 else
-                    ShowMessageBoxWithLog("Замена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                    ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
             }
             else
             {
@@ -185,13 +185,13 @@ namespace Overwritten
                 if (!requireAdministrator.Visible)
                 {
                     replaceButton.Enabled = !cancelWorker.IsBusy;
-                    СheckUndo();
+                    CheckUndo();
                 }
             }
             else
             {
                 replaceButton.Enabled = !cancelWorker.IsBusy;
-                СheckUndo();
+                CheckUndo();
             }
         }
 
@@ -201,7 +201,7 @@ namespace Overwritten
             LogsWrite(currentFileName, LogLevel.Info);
 
             progressBar.PerformStep();
-            СheckUndo();
+            CheckUndo();
         }
 
         private void WorkersRunWorkerCompleted()
@@ -228,7 +228,7 @@ namespace Overwritten
             return files;
         }
 
-        private void СancelButton_Click(object sender, EventArgs e)
+        private void CancelButton_Click(object sender, EventArgs e)
         {
             if (replaceWorker.IsBusy)
                 replaceWorker.CancelAsync();
@@ -257,16 +257,16 @@ namespace Overwritten
             if (!cancelWorker.IsBusy)
                 cancelWorker.RunWorkerAsync();
             else
-                ShowMessageBoxWithLog("Отмена уже выполняеться", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                ShowMessageBoxWithLog("Отмена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
         }
 
-        private void СheckUndo()
+        private void CheckUndo()
         {
             if (!cancelWorker.IsBusy)
                 cancelButton.Enabled = undoFiles.Count > 0 || replaceWorker.IsBusy;
         }
 
-        private void СancelWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void CancelWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
@@ -302,12 +302,12 @@ namespace Overwritten
             }
         }
 
-        private void СancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void CancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             WorkersProgressChanged((string)e.UserState);
         }
 
-        private void СancelWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void CancelWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             WorkersRunWorkerCompleted();
 
@@ -344,7 +344,7 @@ namespace Overwritten
             if (replacementSearch.FileName != "")
                 replacementCombo.Text = replacementSearch.FileName;
             else
-                ComboBoxs_Leave(replacementCombo, e);
+                ComboBoxes_Leave(replacementCombo, e);
         }
 
         private void SearchDirectorySelectionButton_Click(object sender, EventArgs e)
@@ -353,7 +353,7 @@ namespace Overwritten
             searchDirectoryCombo.Text = searchDirectorySearch.SelectedPath;
         }
 
-        private void ComboBoxs_Enter(object sender, EventArgs e)
+        private void ComboBoxes_Enter(object sender, EventArgs e)
         {
             ComboBox comboBoxSender = sender as ComboBox;
 
@@ -363,7 +363,7 @@ namespace Overwritten
             comboBoxSender.ForeColor = Color.Black;
         }
 
-        private void ComboBoxs_Leave(object sender, EventArgs e)
+        private void ComboBoxes_Leave(object sender, EventArgs e)
         {
             ComboBox comboBoxSender = sender as ComboBox;
 
@@ -374,7 +374,7 @@ namespace Overwritten
             }
         }
 
-        private void ComboBoxs_TextChanged(object sender, EventArgs e)
+        private void ComboBoxes_TextChanged(object sender, EventArgs e)
         {
             ComboBox comboBoxSender = sender as ComboBox;
 
@@ -388,7 +388,7 @@ namespace Overwritten
             progressBar.Value = 0;
             progressBar.Visible = false;
             replaceButton.Enabled = true;
-            СheckUndo();
+            CheckUndo();
         }
 
         private void LogsStripMenuItem_Click(object sender, EventArgs e)
