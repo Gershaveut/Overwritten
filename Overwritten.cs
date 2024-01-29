@@ -27,7 +27,7 @@ namespace Overwritten
         {
             InitializeComponent();
 
-            LogsWrite("Инициализация программы", LogLevel.Info);
+            LogWrite("Инициализация программы", LogLevel.Info);
 
             if (Program.args.Length > 0)
             {
@@ -63,7 +63,7 @@ namespace Overwritten
                     }
                 }
 
-                LogsWrite("Аргументы:" + args, LogLevel.Info);
+                LogWrite("Аргументы:" + args, LogLevel.Info);
             }
         }
         
@@ -110,7 +110,7 @@ namespace Overwritten
             {
                 foreach (string file in files)
                 {
-                    if (fullNameCheckChecked ? searchComboText == Path.GetFileName(file) || searchComboText == "*" : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any())
+                    if ((fullNameCheckChecked ? searchComboText == Path.GetFileName(file) : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any()) || searchComboText == "*")
                     {
                         worker.ReportProgress(0, file);
 
@@ -125,13 +125,23 @@ namespace Overwritten
 
                         if (nameChangeCheckChecked)
                         {
-                            File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
-                            File.Copy(replacementComboText, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)), true);
+                            try
+                            {
+                                File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
+                                File.Copy(replacementComboText, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)), true);
 
-                            if (undoCheckChecked)
-                                createFiles.Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
-                            if (Path.GetFileName(file) != Path.GetFileName(replacementComboText))
-                                File.Delete(file);
+                                if (undoCheckChecked)
+                                    createFiles.Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
+                                if (Path.GetFileName(file) != Path.GetFileName(replacementComboText))
+                                    File.Delete(file);
+                            }
+                            catch (Exception ex)
+                            {
+                                //LogWrite("Не удалось изменить название файлу: " + file, LogLevel.Error);
+                                //LogWrite(ex.ToString(), LogLevel.Debug);
+                                
+                                Console.WriteLine(ex.ToString());
+                            }
                         }
                         else
                             File.Copy(replacementComboText, file, true);
@@ -151,7 +161,7 @@ namespace Overwritten
                 else
                     ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
 
-                LogsWrite(ex.ToString(), LogLevel.Debug);
+                LogWrite(ex.ToString(), LogLevel.Debug);
             }
         }
 
@@ -162,7 +172,7 @@ namespace Overwritten
 
         private void ReplaceWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            WorkersRunWorkerCompleted();
+            WorkersRunWorkerCompleted(e, "замены");
 
             if (!e.Cancelled)
             {
@@ -171,7 +181,10 @@ namespace Overwritten
                     progressBar.Value = 0;
                     progressBar.Visible = false;
 
-                    ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
+                    if (e.Error == null)
+                        ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
+                    else
+                        ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
 
                     DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell
                     {
@@ -210,7 +223,7 @@ namespace Overwritten
                     row.Cells.AddRange(searchCell, replacementCell, searchDirectoryCell, fullNameCell, nameChangeCell, undoCell, searchSubdirectoriesCell, cancelButtonCell);
                     historyForm.historyDataGridView.Rows.Add(row);
 
-                    LogsWrite("Запись замены в историю", LogLevel.Info);
+                    LogWrite("Запись замены в историю", LogLevel.Info);
                 }
                 else
                 {
@@ -231,15 +244,23 @@ namespace Overwritten
         private void WorkersProgressChanged(string currentFileName)
         {
             currentFile.Text = currentFileName;
-            LogsWrite(currentFileName, LogLevel.Info);
+            LogWrite(currentFileName, LogLevel.Info);
 
             progressBar.PerformStep();
             CheckUndo();
         }
 
-        private void WorkersRunWorkerCompleted()
+        private void WorkersRunWorkerCompleted(RunWorkerCompletedEventArgs e, string name)
         {
             currentFile.Text = "";
+            
+            if (e.Error != null)
+            {
+                ShowMessageBoxWithLog(e.Error.Message, "Ошибка в процессе " + name, MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+
+                LogWrite(e.Error.ToString(), LogLevel.Debug);
+            }
+
         }
 
         private List<string> GetAllFiles(string directoryPath)
@@ -275,10 +296,10 @@ namespace Overwritten
                 {
                     ShowMessageBoxWithLog("Ошибка удаления истории", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
 
-                    LogsWrite(ex.ToString(), LogLevel.Debug);
+                    LogWrite(ex.ToString(), LogLevel.Debug);
                 }
 
-                LogsWrite("Удаление последней замены в истории", LogLevel.Info);
+                LogWrite("Удаление последней замены в истории", LogLevel.Info);
             }
 
             replaceButton.Enabled = false;
@@ -331,7 +352,7 @@ namespace Overwritten
             {
                 ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
 
-                LogsWrite(ex.ToString(), LogLevel.Debug);
+                LogWrite(ex.ToString(), LogLevel.Debug);
             }
         }
 
@@ -342,12 +363,15 @@ namespace Overwritten
 
         private void CancelWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            WorkersRunWorkerCompleted();
-
+            WorkersRunWorkerCompleted(e, "отмены");
+            
             progressBar.Value = 0;
             progressBar.Visible = false;
 
-            ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
+            if (e.Error == null)
+                ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
+            else
+                ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
 
             undoFiles.Clear();
 
@@ -366,7 +390,7 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
-                LogsWrite(ex.ToString(), LogLevel.Debug);
+                LogWrite(ex.ToString(), LogLevel.Debug);
             }
         }
 
@@ -429,7 +453,7 @@ namespace Overwritten
             logForm.Show();
         }
 
-        private void LogsWrite(string text, LogLevel logLevel)
+        private void LogWrite(string text, LogLevel logLevel)
         {
             text = $"[{DateTime.Now.ToLongTimeString()}] [{logLevel.ToString().ToUpperInvariant()}] {text}";
             
@@ -473,7 +497,7 @@ namespace Overwritten
 
         private DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LogLevel logLevel)
         {
-            LogsWrite(text, logLevel);
+            LogWrite(text, logLevel);
             return MessageBox.Show(text, caption, buttons, icon);
         }
 
