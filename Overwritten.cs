@@ -18,7 +18,7 @@ namespace Overwritten
         private readonly Log logForm = new Log();
         private readonly History historyForm = new History();
         private List<string> files;
-        private Logger logger = new Logger(new Logger.LoggerProperties().Debug());
+        private Logger logger = new Logger(new Logger.Properties().Debug());
         
         private bool fullNameCheckChecked;
         private string searchComboText;
@@ -30,12 +30,12 @@ namespace Overwritten
         {
             InitializeComponent();
 
-            Logger.LoggerProperties loggerProperties = new Logger.LoggerProperties();
+            Logger.Properties loggerProperties = new Logger.Properties();
             if (Program.debug)
                 loggerProperties.Debug();
             logger = new Logger(loggerProperties);
 
-            logger.LogChange += LogChange;
+            logger.LogWritten += LogWritten;
 
             logger.LogWrite("Инициализация программы", LoggerLevel.Info);
 
@@ -443,53 +443,15 @@ namespace Overwritten
             logForm.Show();
         }
 
-        private void LogChange(string message)
+        private void LogWritten(string message, LoggerLevel loggerLevel)
         {
-            logForm.logTextBox.Text = logger.logText;
+            logForm.logTextBox.AppendText(message);
+
+            logForm.logTextBox.Select(logForm.logTextBox.TextLength - message.Length, logForm.logTextBox.TextLength);
+            logForm.logTextBox.SelectionColor = LoggerLevelColor.GetColor(loggerLevel);
+            logForm.logTextBox.DeselectAll();
         }
-
-        //private void LogWrite(string text, LogLevel logLevel)
-        //{
-        //    text = $"[{DateTime.Now.ToLongTimeString()}] [{logLevel.ToString().ToUpperInvariant()}] {text}";
-            
-        //    Console.WriteLine(text);
-
-        //    if ((logLevel == LogLevel.Debug && Program.debug) || logLevel != LogLevel.Debug)
-        //    {
-        //        if (logForm.logTextBox.Text != "")
-        //            logForm.logTextBox.AppendText("\n" + text);
-        //        else
-        //            logForm.logTextBox.AppendText(text);
-
-        //        logForm.logTextBox.Select(logForm.logTextBox.TextLength - text.Length, logForm.logTextBox.TextLength);
-                
-        //        Color logLevelColor;
-
-        //        switch (logLevel)
-        //        {
-        //            default:
-        //                logLevelColor = logForm.logTextBox.ForeColor;
-        //                break;
-        //            case LogLevel.Info:
-        //                logLevelColor = logForm.logTextBox.ForeColor;
-        //                break;
-        //            case LogLevel.Warn:
-        //                logLevelColor = Color.FromArgb(164, 255, 164, 1); //Gold
-        //                break;
-        //            case LogLevel.Error:
-        //                logLevelColor = Color.Red;
-        //                break;
-        //            case LogLevel.Debug:
-        //                logLevelColor = Color.Gray;
-        //                break;
-        //        }
-
-        //        logForm.logTextBox.SelectionColor = logLevelColor;
-
-        //        logForm.logTextBox.DeselectAll();
-        //    }
-        //}
-
+        
         private DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LoggerLevel logLevel)
         {
             logger.LogWrite(text, logLevel);

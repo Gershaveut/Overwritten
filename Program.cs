@@ -22,15 +22,15 @@ namespace Overwritten
 
             Program.args = args;
 
-            argumentHandler = new ArgumentHandler(new HashSet<AbstractArgument>
-            {
-                new Argument("debug", () => debug = true)
-            });
-
-            argumentHandler.ArgumentsInvoke(args);
-            
             try
             {
+                argumentHandler = new ArgumentHandler(new HashSet<AbstractArgument>
+                {
+                new Argument("debug", () => debug = true)
+                });
+
+                argumentHandler.ArgumentsInvoke(args);
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 overwritten = new Overwritten();
