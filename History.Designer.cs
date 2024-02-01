@@ -44,14 +44,15 @@
             this.historyDataGridView.Location = new System.Drawing.Point(12, 12);
             this.historyDataGridView.Name = "historyDataGridView";
             this.historyDataGridView.ReadOnly = true;
-            this.historyDataGridView.Size = new System.Drawing.Size(776, 426);
+            this.historyDataGridView.Size = new System.Drawing.Size(1037, 426);
             this.historyDataGridView.TabIndex = 0;
+            this.historyDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HistoryDataGridView_CellContentClick);
             // 
             // History
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1061, 450);
             this.Controls.Add(this.historyDataGridView);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "History";

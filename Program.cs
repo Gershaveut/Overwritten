@@ -1,6 +1,4 @@
-﻿using OFGmCoreCS.Argument;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -9,7 +7,6 @@ namespace Overwritten
     {
         public static bool debug;
         public static string[] args;
-        public static ArgumentHandler argumentHandler;
 
         public static Overwritten overwritten;
 
@@ -24,13 +21,6 @@ namespace Overwritten
 
             try
             {
-                argumentHandler = new ArgumentHandler(new HashSet<AbstractArgument>
-                {
-                new Argument("debug", () => debug = true)
-                });
-
-                argumentHandler.ArgumentsInvoke(args);
-
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 overwritten = new Overwritten();
@@ -41,9 +31,12 @@ namespace Overwritten
                 MessageBox.Show(ex.ToString(), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            foreach (UndoFile file in overwritten.undoFiles)
+            foreach (var undoFiles in overwritten.undoFiles)
             {
-                file.Delete();
+                foreach (UndoFile file in overwritten.undoFiles[undoFiles.Key])
+                {
+                    file.Delete();
+                }
             }
         }
     }
