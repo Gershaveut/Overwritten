@@ -19,16 +19,6 @@ namespace Overwritten
 
             Program.args = args;
 
-            foreach (string arg in args)
-            {
-                switch (Util.ArgBoolName(arg))
-                {
-                    case "debug":
-                        debug = true;
-                        break;
-                }
-            }
-
             try
             {
                 Application.EnableVisualStyles();
@@ -41,10 +31,7 @@ namespace Overwritten
                 MessageBox.Show(ex.ToString(), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            foreach (UndoFile file in overwritten.undoFiles)
-            {
-                file.Delete();
-            }
+            Program.overwritten.ClearUndoFiles();
         }
     }
 }

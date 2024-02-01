@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace Overwritten
 {
@@ -43,18 +44,46 @@ namespace Overwritten
                 Name = "Поиск в поддиректориях"
             };
 
+            DataGridViewTextBoxColumn IdColumn = new DataGridViewTextBoxColumn
+            {
+                Name = "ID"
+            };
+
             DataGridViewButtonColumn cancelButtonColum = new DataGridViewButtonColumn
             {
                 Name = "Отмена замены",
             };
-
-            historyDataGridView.Columns.AddRange(searchColumn, replacementColumn, searchDirectoryColumn, fullNameColumn, nameChangeColumn, undoColumn, searchSubdirectoriesColumn, cancelButtonColum);
+            
+            historyDataGridView.Columns.AddRange(searchColumn, replacementColumn, searchDirectoryColumn, fullNameColumn, nameChangeColumn, undoColumn, searchSubdirectoriesColumn, IdColumn, cancelButtonColum);
         }
+
+ 
 
         private void History_FormClosing(object sender, FormClosingEventArgs e)
         {
             Visible = false;
             e.Cancel = true;
+        }
+
+        private void HistoryDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            DataGridView dataGridView = (DataGridView)sender;
+
+            if (dataGridView.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+            {
+                Program.overwritten.Cancel(Convert.ToInt32(dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex - 1].Value), e.RowIndex);
+            }
+        }
+
+        private void BackButton_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            historyDataGridView.Rows.Clear();
+            Program.overwritten.ClearUndoFiles();
         }
     }
 }

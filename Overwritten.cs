@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OFGmCoreCS.LoggerSimple;
+using OFGmCoreCS.ProgramArgument;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,12 +13,13 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
-        public readonly List<UndoFile> undoFiles = new List<UndoFile>();
-        private readonly List<string> createFiles = new List<string>();
+        public readonly Dictionary<int, List<UndoFile>> undoFiles = new Dictionary<int, List<UndoFile>>();
+        private readonly Dictionary<int, List<string>> createFiles = new Dictionary<int, List<string>>();
         private readonly Log logForm = new Log();
         private readonly History historyForm = new History();
         private List<string> files;
-        
+        private Logger logger = new Logger(new Logger.Properties().Debug());
+
         private bool fullNameCheckChecked;
         private string searchComboText;
         private bool nameChangeCheckChecked;
@@ -27,71 +30,64 @@ namespace Overwritten
         {
             InitializeComponent();
 
-            LogWrite("Инициализация программы", LogLevel.Info);
+            Logger.Properties loggerProperties = new Logger.Properties();
+            if (Program.debug)
+                loggerProperties.Debug();
+            logger = new Logger(loggerProperties);
 
-            if (Program.args.Length > 0)
+            logger.LogWritten += LogWritten;
+
+            logger.Write("Инициализация программы", LoggerLevel.Info);
+
+            ArgumentHandler argumentHandler = new ArgumentHandler(new HashSet<IArgument>
             {
-                string args = "";
+                new Argument<string>("search", (arg) => searchCombo.Text = arg),
+                new Argument<string>("replacement", (arg) => replacementCombo.Text = arg),
+                new Argument<string>("searchDirectory", (arg) => searchDirectoryCombo.Text = arg),
+                new Argument<bool>("fullName", (arg) => fullNameCheck.Checked = arg),
+                new Argument<bool>("nameChange", (arg) => nameChangeCheck.Checked = arg),
+                new Argument<bool>("undo", (arg) => undoCheck.Checked = arg),
+                new Argument<bool>("searchSubdirectories", (arg) => searchSubdirectoriesCheck.Checked = arg)
+            });
 
-                foreach (string arg in Program.args)
-                {
-                    args += " " + arg;
+            argumentHandler.ArgumentsInvoke(Program.args);
 
-                    switch (Util.ArgTextName(arg))
-                    {
-                        case "search":
-                            searchCombo.Text = Util.ArgTextValue(arg);
-                            break;
-                        case "replacement":
-                            replacementCombo.Text = Util.ArgTextValue(arg);
-                            break;
-                        case "fullName":
-                            fullNameCheck.Checked = Util.ArgTextValueBool(arg);
-                            break;
-                        case "nameChange":
-                            nameChangeCheck.Checked = Util.ArgTextValueBool(arg);
-                            break;
-                        case "undo":
-                            undoCheck.Checked = Util.ArgTextValueBool(arg);
-                            break;
-                        case "searchSubdirectories":
-                            searchSubdirectoriesCheck.Checked = Util.ArgTextValueBool(arg);
-                            break;
-                        case "searchDirectory":
-                            searchDirectoryCombo.Text = Util.ArgTextValue(arg);
-                            break;
-                    }
-                }
-
-                LogWrite("Аргументы:" + args, LogLevel.Info);
-            }
+            if (ArgumentHandler.ArgumentsList(Program.args) != "")
+                logger.Write("Аргументы: " + ArgumentHandler.ArgumentsList(Program.args), LoggerLevel.Info);
         }
-        
+
         private void ReplaceButton_Click(object sender, EventArgs e)
         {
             replaceButton.Enabled = false;
 
             if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
             {
-                files = GetAllFiles(searchDirectoryCombo.Text);
-                progressBar.Maximum = files.Count;
-                progressBar.Visible = true;
+                try
+                {
+                    files = GetAllFiles(searchDirectoryCombo.Text);
+                    progressBar.Maximum = files.Count;
+                    progressBar.Visible = true;
 
-                fullNameCheckChecked = fullNameCheck.Checked;
-                searchComboText = searchCombo.Text;
+                    fullNameCheckChecked = fullNameCheck.Checked;
+                    searchComboText = searchCombo.Text;
 
-                nameChangeCheckChecked = nameChangeCheck.Checked;
-                undoCheckChecked = undoCheck.Checked;
-                replacementComboText = replacementCombo.Text;
+                    nameChangeCheckChecked = nameChangeCheck.Checked;
+                    undoCheckChecked = undoCheck.Checked;
+                    replacementComboText = replacementCombo.Text;
 
-                if (!replaceWorker.IsBusy)
-                    replaceWorker.RunWorkerAsync();
-                else
-                    ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                    if (!replaceWorker.IsBusy)
+                        replaceWorker.RunWorkerAsync();
+                    else
+                        ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                }
+                catch 
+                {
+                    ShowMessageBoxWithLog("Поля заполнены неправильно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                }
             }
             else
             {
-                ShowMessageBoxWithLog("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                ShowMessageBoxWithLog("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 replaceButton.Enabled = true;
             }
         }
@@ -100,74 +96,55 @@ namespace Overwritten
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            foreach (UndoFile undoFile in undoFiles)
-            {
-                undoFile.Delete();
-            }
-            undoFiles.Clear();
+            int key = undoFiles.Keys.Count;
 
-            try
+            undoFiles.Add(key, new List<UndoFile>());
+            createFiles.Add(key, new List<string>());
+
+            foreach (string file in files)
             {
-                foreach (string file in files)
+                if ((fullNameCheckChecked ? searchComboText == Path.GetFileName(file) : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any()) || searchComboText == "*")
                 {
-                    if ((fullNameCheckChecked ? searchComboText == Path.GetFileName(file) : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any()) || searchComboText == "*")
+                    worker.ReportProgress(0, file);
+
+                    if (worker.CancellationPending == true)
                     {
-                        worker.ReportProgress(0, file);
-
-                        if (worker.CancellationPending == true)
-                        {
-                            e.Cancel = true;
-                            break;
-                        }
-
-                        if (undoCheckChecked)
-                            undoFiles.Add(new UndoFile(file));
-
-                        if (nameChangeCheckChecked)
-                        {
-                            try
-                            {
-                                File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
-                                File.Copy(replacementComboText, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)), true);
-
-                                if (undoCheckChecked)
-                                    createFiles.Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
-                                if (Path.GetFileName(file) != Path.GetFileName(replacementComboText))
-                                    File.Delete(file);
-                            }
-                            catch (Exception ex)
-                            {
-                                //LogWrite("Не удалось изменить название файлу: " + file, LogLevel.Error);
-                                //LogWrite(ex.ToString(), LogLevel.Debug);
-                                
-                                Console.WriteLine(ex.ToString());
-                            }
-                        }
-                        else
-                            File.Copy(replacementComboText, file, true);
+                        e.Cancel = true;
+                        break;
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex is UnauthorizedAccessException)
-                    requireAdministrator.Visible = true;
-                else if (ex is DirectoryNotFoundException)
-                    ShowMessageBoxWithLog(ex.Message, "Ошибка области поиска", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
-                else if (ex is FileNotFoundException)
-                    ShowMessageBoxWithLog(ex.Message, "Ошибка заменителя", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
-                else if (ex is IOException)
-                    ShowMessageBoxWithLog(ex.Message, "Ошибка изменения названия", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
-                else
-                    ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                    
+                    if (undoCheckChecked)
+                        undoFiles[key].Add(new UndoFile(file));
 
-                LogWrite(ex.ToString(), LogLevel.Debug);
+                    if (nameChangeCheckChecked)
+                    {
+                        try
+                        {
+                            File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
+                            File.Copy(replacementComboText, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)), true);
+
+                            if (undoCheckChecked)
+                                createFiles[key].Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
+                            if (Path.GetFileName(file) != Path.GetFileName(replacementComboText))
+                                File.Delete(file);
+                        }
+                        catch (Exception ex)
+                        {
+                            worker.ReportProgress(0, new ErrorReport("Не удалось изменить название файлу", ex));
+                        }
+                    }
+                    else
+                        File.Copy(replacementComboText, file, true);
+                }
             }
         }
 
         private void ReplaceWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            WorkersProgressChanged("Замена: " + (string)e.UserState);
+            if (e.UserState is ErrorReport report)
+                WorkersProgressChanged(report);
+            else
+                WorkersProgressChanged("Замена: " + (string)e.UserState, LoggerLevel.Info);
         }
 
         private void ReplaceWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -182,9 +159,9 @@ namespace Overwritten
                     progressBar.Visible = false;
 
                     if (e.Error == null)
-                        ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
+                        ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
                     else
-                        ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                        ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
 
                     DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell
                     {
@@ -214,20 +191,24 @@ namespace Overwritten
                     {
                         Value = searchSubdirectoriesCheck.Checked
                     };
+                    DataGridViewTextBoxCell IdCell = new DataGridViewTextBoxCell
+                    {
+                        Value = (undoFiles.Keys.Count - 1).ToString()
+                    };
                     DataGridViewButtonCell cancelButtonCell = new DataGridViewButtonCell
                     {
                         Value = "Отмена"
                     };
 
                     DataGridViewRow row = new DataGridViewRow();
-                    row.Cells.AddRange(searchCell, replacementCell, searchDirectoryCell, fullNameCell, nameChangeCell, undoCell, searchSubdirectoriesCell, cancelButtonCell);
+                    row.Cells.AddRange(searchCell, replacementCell, searchDirectoryCell, fullNameCell, nameChangeCell, undoCell, searchSubdirectoriesCell, IdCell, cancelButtonCell);
                     historyForm.historyDataGridView.Rows.Add(row);
 
-                    LogWrite("Запись замены в историю", LogLevel.Info);
+                    logger.Write("Запись замены в историю", LoggerLevel.Info);
                 }
                 else
                 {
-                    if (ShowMessageBoxWithLog("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning, LogLevel.Warn) == DialogResult.Retry)
+                    if (ShowMessageBoxWithLog("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning, LoggerLevel.Warn) == DialogResult.Retry)
                     {
                         ReplaceButton_Click(replaceButton, e);
                     }
@@ -241,26 +222,48 @@ namespace Overwritten
             }
         }
 
-        private void WorkersProgressChanged(string currentFileName)
+        private void WorkersProgressChanged(string currentFileName, LoggerLevel loggerLevel)
         {
             currentFile.Text = currentFileName;
-            LogWrite(currentFileName, LogLevel.Info);
+            logger.Write(currentFileName, loggerLevel);
 
             progressBar.PerformStep();
             CheckUndo();
         }
 
+        private void WorkersProgressChanged(ErrorReport report)
+        {
+            WorkersProgressChanged(report.message + ": " + report.exception.Message, LoggerLevel.Error);
+
+            logger.Write(report.exception.ToString(), LoggerLevel.Debug);
+        }
+
+        private class ErrorReport
+        {
+            public string message;
+            public Exception exception;
+
+            public ErrorReport(string message, Exception exception)
+            {
+                this.message = message;
+                this.exception = exception;
+            }
+        }
+
         private void WorkersRunWorkerCompleted(RunWorkerCompletedEventArgs e, string name)
         {
             currentFile.Text = "";
-            
-            if (e.Error != null)
+
+            if (e.Error is UnauthorizedAccessException)
             {
-                ShowMessageBoxWithLog(e.Error.Message, "Ошибка в процессе " + name, MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
-
-                LogWrite(e.Error.ToString(), LogLevel.Debug);
+                requireAdministrator.Visible = true;
             }
+            else if (e.Error != null)
+            {
+                ShowMessageBoxWithLog(e.Error.Message, "Ошибка в процессе " + name, MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
 
+                logger.Write(e.Error.ToString(), LoggerLevel.Debug);
+            }
         }
 
         private List<string> GetAllFiles(string directoryPath)
@@ -284,34 +287,33 @@ namespace Overwritten
 
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            if (replaceWorker.IsBusy)
-                replaceWorker.CancelAsync();
-            else
-            {
-                try
-                {
-                    historyForm.historyDataGridView.Rows.RemoveAt(historyForm.historyDataGridView.Rows.Count - 1);
-                }
-                catch (Exception ex)
-                {
-                    ShowMessageBoxWithLog("Ошибка удаления истории", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+            Cancel(undoFiles.Keys.Count - 1, historyForm.historyDataGridView.Rows.Count - 1);
+        }
 
-                    LogWrite(ex.ToString(), LogLevel.Debug);
-                }
-
-                LogWrite("Удаление последней замены в истории", LogLevel.Info);
-            }
-
-            replaceButton.Enabled = false;
-            cancelButton.Enabled = false;
-            progressBar.Value = 0;
-            progressBar.Maximum = undoFiles.Count + createFiles.Count;
-            progressBar.Visible = true;
-
+        public void Cancel(int id, int historyIndex)
+        {
             if (!cancelWorker.IsBusy)
-                cancelWorker.RunWorkerAsync();
+            {
+                if (replaceWorker.IsBusy)
+                    replaceWorker.CancelAsync();
+                else
+                {
+                    historyForm.historyDataGridView.Rows.RemoveAt(historyIndex);
+
+                    logger.Write($"Удаление {historyIndex} записи в истории", LoggerLevel.Info);
+                }
+
+                replaceButton.Enabled = false;
+                cancelButton.Enabled = false;
+                progressBar.Value = 0;
+                
+                progressBar.Maximum = undoFiles[id].Count + createFiles[id].Count;
+                progressBar.Visible = true;
+
+                cancelWorker.RunWorkerAsync(id);
+            }
             else
-                ShowMessageBoxWithLog("Отмена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                ShowMessageBoxWithLog("Отмена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
         }
 
         private void CheckUndo()
@@ -324,6 +326,8 @@ namespace Overwritten
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
+            int id = (int)e.Argument;
+
             if (replaceWorker.IsBusy)
                 worker.ReportProgress(0, "Ожидание завершения замены");
 
@@ -332,49 +336,44 @@ namespace Overwritten
                 Application.DoEvents();
             }
 
-            try
+            foreach (string file in createFiles[id])
             {
-                foreach (string file in createFiles)
-                {
-                    worker.ReportProgress(0, "Удаление: " + file);
+                worker.ReportProgress(0, "Удаление: " + file);
 
-                    File.Delete(file);
-                }
-
-                foreach (UndoFile file in undoFiles)
-                {
-                    worker.ReportProgress(0, "Возвращение: " + file.undoPath);
-
-                    file.Undo();
-                }
+                File.Delete(file);
             }
-            catch (Exception ex)
+
+            foreach (UndoFile file in undoFiles[id])
             {
-                ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
+                worker.ReportProgress(0, "Возвращение: " + file.undoPath);
 
-                LogWrite(ex.ToString(), LogLevel.Debug);
+                file.Undo();
             }
+
+            undoFiles.Remove(id);
+            createFiles.Remove(id);
         }
 
         private void CancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            WorkersProgressChanged((string)e.UserState);
+            if (e.UserState is ErrorReport report)
+                WorkersProgressChanged(report);
+            else
+                WorkersProgressChanged((string)e.UserState, LoggerLevel.Info);
         }
 
         private void CancelWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             WorkersRunWorkerCompleted(e, "отмены");
-            
+
             progressBar.Value = 0;
             progressBar.Visible = false;
 
             if (e.Error == null)
-                ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LogLevel.Info);
+                ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
             else
-                ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LogLevel.Error);
-
-            undoFiles.Clear();
-
+                ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+            
             replaceButton.Enabled = !replaceWorker.IsBusy;
         }
 
@@ -390,7 +389,7 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
-                LogWrite(ex.ToString(), LogLevel.Debug);
+                logger.Write(ex.ToString(), LoggerLevel.Debug);
             }
         }
 
@@ -416,7 +415,7 @@ namespace Overwritten
 
             if (comboBoxSender.Text == (string)comboBoxSender.Tag)
                 comboBoxSender.Text = "";
-            
+
             comboBoxSender.ForeColor = Color.Black;
         }
 
@@ -453,57 +452,35 @@ namespace Overwritten
             logForm.Show();
         }
 
-        private void LogWrite(string text, LogLevel logLevel)
+        private void LogWritten(string message, LoggerLevel loggerLevel)
         {
-            text = $"[{DateTime.Now.ToLongTimeString()}] [{logLevel.ToString().ToUpperInvariant()}] {text}";
-            
-            Console.WriteLine(text);
+            logForm.logTextBox.AppendText(message);
 
-            if ((logLevel == LogLevel.Debug && Program.debug) || logLevel != LogLevel.Debug)
-            {
-                if (logForm.logTextBox.Text != "")
-                    logForm.logTextBox.AppendText("\n" + text);
-                else
-                    logForm.logTextBox.AppendText(text);
-
-                logForm.logTextBox.Select(logForm.logTextBox.TextLength - text.Length, logForm.logTextBox.TextLength);
-                
-                Color logLevelColor;
-
-                switch (logLevel)
-                {
-                    default:
-                        logLevelColor = logForm.logTextBox.ForeColor;
-                        break;
-                    case LogLevel.Info:
-                        logLevelColor = logForm.logTextBox.ForeColor;
-                        break;
-                    case LogLevel.Warn:
-                        logLevelColor = Color.FromArgb(164, 255, 164, 1); //Gold
-                        break;
-                    case LogLevel.Error:
-                        logLevelColor = Color.Red;
-                        break;
-                    case LogLevel.Debug:
-                        logLevelColor = Color.Gray;
-                        break;
-                }
-
-                logForm.logTextBox.SelectionColor = logLevelColor;
-
-                logForm.logTextBox.DeselectAll();
-            }
+            logForm.logTextBox.Select(logForm.logTextBox.TextLength - message.Length, logForm.logTextBox.TextLength);
+            logForm.logTextBox.SelectionColor = LoggerLevelColor.GetColor(loggerLevel);
+            logForm.logTextBox.DeselectAll();
         }
 
-        private DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LogLevel logLevel)
+        private DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LoggerLevel logLevel)
         {
-            LogWrite(text, logLevel);
+            logger.Write(text, logLevel);
             return MessageBox.Show(text, caption, buttons, icon);
         }
 
         private void HistoryStripMenuItem_Click(object sender, EventArgs e)
         {
             historyForm.Show();
-        }     
+        }
+
+        public void ClearUndoFiles()
+        {
+            foreach (var undoFile in undoFiles)
+            {
+                foreach (UndoFile file in undoFiles[undoFile.Key])
+                {
+                    file.Delete();
+                }
+            }
+        }
     }
 }
