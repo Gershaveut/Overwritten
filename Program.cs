@@ -31,13 +31,7 @@ namespace Overwritten
                 MessageBox.Show(ex.ToString(), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            foreach (var undoFiles in overwritten.undoFiles)
-            {
-                foreach (UndoFile file in overwritten.undoFiles[undoFiles.Key])
-                {
-                    file.Delete();
-                }
-            }
+            Program.overwritten.ClearUndoFiles();
         }
     }
 }

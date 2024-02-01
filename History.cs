@@ -74,5 +74,16 @@ namespace Overwritten
                 Program.overwritten.Cancel(Convert.ToInt32(dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex - 1].Value), e.RowIndex);
             }
         }
+
+        private void BackButton_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            historyDataGridView.Rows.Clear();
+            Program.overwritten.ClearUndoFiles();
+        }
     }
 }

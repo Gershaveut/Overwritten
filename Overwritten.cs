@@ -62,21 +62,28 @@ namespace Overwritten
 
             if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
             {
-                files = GetAllFiles(searchDirectoryCombo.Text);
-                progressBar.Maximum = files.Count;
-                progressBar.Visible = true;
+                try
+                {
+                    files = GetAllFiles(searchDirectoryCombo.Text);
+                    progressBar.Maximum = files.Count;
+                    progressBar.Visible = true;
 
-                fullNameCheckChecked = fullNameCheck.Checked;
-                searchComboText = searchCombo.Text;
+                    fullNameCheckChecked = fullNameCheck.Checked;
+                    searchComboText = searchCombo.Text;
 
-                nameChangeCheckChecked = nameChangeCheck.Checked;
-                undoCheckChecked = undoCheck.Checked;
-                replacementComboText = replacementCombo.Text;
+                    nameChangeCheckChecked = nameChangeCheck.Checked;
+                    undoCheckChecked = undoCheck.Checked;
+                    replacementComboText = replacementCombo.Text;
 
-                if (!replaceWorker.IsBusy)
-                    replaceWorker.RunWorkerAsync();
-                else
-                    ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                    if (!replaceWorker.IsBusy)
+                        replaceWorker.RunWorkerAsync();
+                    else
+                        ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                }
+                catch 
+                {
+                    ShowMessageBoxWithLog("Поля заполнены неправильно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                }
             }
             else
             {
@@ -463,6 +470,17 @@ namespace Overwritten
         private void HistoryStripMenuItem_Click(object sender, EventArgs e)
         {
             historyForm.Show();
+        }
+
+        public void ClearUndoFiles()
+        {
+            foreach (var undoFile in undoFiles)
+            {
+                foreach (UndoFile file in undoFiles[undoFile.Key])
+                {
+                    file.Delete();
+                }
+            }
         }
     }
 }
