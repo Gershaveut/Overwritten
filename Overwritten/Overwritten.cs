@@ -13,7 +13,7 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
-        public readonly Dictionary<int, List<UndoFile>> undoFiles = new Dictionary<int, List<UndoFile>>();
+        private readonly Dictionary<int, List<UndoFile>> undoFiles = new Dictionary<int, List<UndoFile>>();
         private readonly Dictionary<int, List<string>> createFiles = new Dictionary<int, List<string>>();
         private readonly Log logForm = new Log();
         private readonly History historyForm = new History();
@@ -58,29 +58,39 @@ namespace Overwritten
 
         private void ReplaceButton_Click(object sender, EventArgs e)
         {
+            Replace();
+        }
+
+        public void Replace()
+        {
+            Replace(searchCombo.Text, replacementCombo.Text, searchDirectoryCombo.Text, fullNameCheck.Checked, nameChangeCheck.Checked, undoCheck.Checked, searchSubdirectoriesCheck.Checked);
+        }
+
+        public void Replace(string search, string replacement, string searchDirectory, bool fullName, bool nameChange, bool undo, bool searchSubdirectories)
+        {
             replaceButton.Enabled = false;
 
-            if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
+            if (search != (string)searchCombo.Tag && replacement != (string)replacementCombo.Tag && searchDirectory != "")
             {
                 try
                 {
-                    files = GetAllFiles(searchDirectoryCombo.Text);
+                    files = GetAllFiles(searchDirectory, searchSubdirectories);
                     progressBar.Maximum = files.Count;
                     progressBar.Visible = true;
 
-                    fullNameCheckChecked = fullNameCheck.Checked;
-                    searchComboText = searchCombo.Text;
+                    fullNameCheckChecked = fullName;
+                    searchComboText = search;
 
-                    nameChangeCheckChecked = nameChangeCheck.Checked;
-                    undoCheckChecked = undoCheck.Checked;
-                    replacementComboText = replacementCombo.Text;
+                    nameChangeCheckChecked = nameChange;
+                    undoCheckChecked = undo;
+                    replacementComboText = replacement;
 
                     if (!replaceWorker.IsBusy)
                         replaceWorker.RunWorkerAsync();
                     else
                         ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 }
-                catch 
+                catch
                 {
                     ShowMessageBoxWithLog("Поля заполнены неправильно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 }
@@ -112,7 +122,7 @@ namespace Overwritten
                         e.Cancel = true;
                         break;
                     }
-                    
+
                     if (undoCheckChecked)
                         undoFiles[key].Add(new UndoFile(file));
 
@@ -266,7 +276,7 @@ namespace Overwritten
             }
         }
 
-        private List<string> GetAllFiles(string directoryPath)
+        private List<string> GetAllFiles(string directoryPath, bool searchSubdirectories)
         {
             List<string> files = new List<string>();
             foreach (string file in Directory.GetFiles(directoryPath))
@@ -274,11 +284,11 @@ namespace Overwritten
                 files.Add(file);
             }
 
-            if (searchSubdirectoriesCheck.Checked)
+            if (searchSubdirectories)
             {
                 foreach (string subDirectory in Directory.GetDirectories(directoryPath))
                 {
-                    files.AddRange(GetAllFiles(subDirectory));
+                    files.AddRange(GetAllFiles(subDirectory, searchSubdirectories));
                 }
             }
 
@@ -286,6 +296,11 @@ namespace Overwritten
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
+        {
+            Cancel();
+        }
+
+        public void Cancel()
         {
             Cancel(undoFiles.Keys.Count - 1, historyForm.historyDataGridView.Rows.Count - 1);
         }
@@ -306,7 +321,7 @@ namespace Overwritten
                 replaceButton.Enabled = false;
                 cancelButton.Enabled = false;
                 progressBar.Value = 0;
-                
+
                 progressBar.Maximum = undoFiles[id].Count + createFiles[id].Count;
                 progressBar.Visible = true;
 
@@ -373,7 +388,7 @@ namespace Overwritten
                 ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
             else
                 ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
-            
+
             replaceButton.Enabled = !replaceWorker.IsBusy;
         }
 
