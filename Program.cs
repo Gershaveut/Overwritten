@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace Overwritten
 {
-    public static class Program
+    internal static class Program
     {
         public static bool debug;
         public static string[] args;
@@ -11,7 +11,7 @@ namespace Overwritten
         public static Overwritten overwritten;
 
         [STAThread]
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
             #if DEBUG
             debug = true;
@@ -19,23 +19,19 @@ namespace Overwritten
 
             Program.args = args;
 
-            #if !DEBUG
             try
             {
-            #endif
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 overwritten = new Overwritten();
                 Application.Run(overwritten);
-            #if !DEBUG
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            #endif
 
-            overwritten.ClearUndoFiles();
+            Program.overwritten.ClearUndoFiles();
         }
     }
 }

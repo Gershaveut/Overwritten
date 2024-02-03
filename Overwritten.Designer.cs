@@ -336,7 +336,7 @@ namespace Overwritten
             // 
             this.logsStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.logsStripMenuItem.Name = "logsStripMenuItem";
-            this.logsStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.logsStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.logsStripMenuItem.Text = "Журнал";
             this.logsStripMenuItem.Click += new System.EventHandler(this.LogsStripMenuItem_Click);
             // 
@@ -344,7 +344,7 @@ namespace Overwritten
             // 
             this.historyStripMenuItem.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.historyStripMenuItem.Name = "historyStripMenuItem";
-            this.historyStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.historyStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.historyStripMenuItem.Text = "История";
             this.historyStripMenuItem.Click += new System.EventHandler(this.HistoryStripMenuItem_Click);
             // 
@@ -393,6 +393,11 @@ namespace Overwritten
         private System.Windows.Forms.Button replacementSelectionButton;
         private System.Windows.Forms.Button searchDirectorySelectionButton;
         private System.Windows.Forms.Label searchDirectoryLabel;
+        private System.Windows.Forms.ComboBox searchCombo;
+        private System.Windows.Forms.ComboBox replacementCombo;
+        private System.Windows.Forms.ComboBox searchDirectoryCombo;
+        private System.Windows.Forms.CheckBox fullNameCheck;
+        private System.Windows.Forms.CheckBox nameChangeCheck;
         private System.Windows.Forms.Panel requireAdministrator;
         private System.Windows.Forms.PictureBox requireAdministratorPicture;
         private System.Windows.Forms.Button requireAdministratorCancelButton;
@@ -400,18 +405,13 @@ namespace Overwritten
         private System.Windows.Forms.Label requireAdministratorLabel;
         private System.Windows.Forms.Label currentFile;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.CheckBox undoCheck;
+        private System.ComponentModel.BackgroundWorker replaceWorker;
+        private System.ComponentModel.BackgroundWorker cancelWorker;
+        private System.Windows.Forms.CheckBox searchSubdirectoriesCheck;
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem logsStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem historyStripMenuItem;
-        public System.Windows.Forms.ComboBox searchCombo;
-        public System.Windows.Forms.ComboBox replacementCombo;
-        public System.Windows.Forms.ComboBox searchDirectoryCombo;
-        public System.Windows.Forms.CheckBox fullNameCheck;
-        public System.Windows.Forms.CheckBox nameChangeCheck;
-        public System.Windows.Forms.CheckBox undoCheck;
-        public System.Windows.Forms.CheckBox searchSubdirectoriesCheck;
-        public System.ComponentModel.BackgroundWorker replaceWorker;
-        public System.ComponentModel.BackgroundWorker cancelWorker;
     }
 }
