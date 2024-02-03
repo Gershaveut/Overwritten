@@ -26,6 +26,8 @@ namespace Overwritten
         private bool undoCheckChecked;
         private string replacementComboText;
 
+        private bool runReplace;
+
         public Overwritten()
         {
             InitializeComponent();
@@ -47,18 +49,28 @@ namespace Overwritten
                 new Argument<bool>("fullName", (arg) => fullNameCheck.Checked = arg),
                 new Argument<bool>("nameChange", (arg) => nameChangeCheck.Checked = arg),
                 new Argument<bool>("undo", (arg) => undoCheck.Checked = arg),
-                new Argument<bool>("searchSubdirectories", (arg) => searchSubdirectoriesCheck.Checked = arg)
+                new Argument<bool>("searchSubdirectories", (arg) => searchSubdirectoriesCheck.Checked = arg),
+                new Argument("runReplace", () => runReplace = true)
             });
 
             argumentHandler.ArgumentsInvoke(Program.args);
 
             if (ArgumentHandler.ArgumentsList(Program.args) != "")
                 logger.Write("Аргументы: " + ArgumentHandler.ArgumentsList(Program.args), LoggerLevel.Info);
+
+            if (runReplace)
+                Replace();
         }
 
         private void ReplaceButton_Click(object sender, EventArgs e)
         {
+            Replace();
+        }
+
+        private void Replace()
+        {
             replaceButton.Enabled = false;
+            cancelButton.Enabled = true;
 
             if (searchCombo.Text != (string)searchCombo.Tag && replacementCombo.Text != (string)replacementCombo.Tag && searchDirectoryCombo.Text != "")
             {
@@ -80,15 +92,22 @@ namespace Overwritten
                     else
                         ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 }
-                catch 
+                catch (Exception ex)
                 {
-                    ShowMessageBoxWithLog("Поля заполнены неправильно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                    if (ex is UnauthorizedAccessException)
+                        requireAdministrator.Visible = true;
+                    else
+                        ShowMessageBoxWithLog("Поля заполнены неправильно", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+
+                    replaceButton.Enabled = true;
+                    cancelButton.Enabled = false;
                 }
             }
             else
             {
                 ShowMessageBoxWithLog("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 replaceButton.Enabled = true;
+                cancelButton.Enabled = false;
             }
         }
 
@@ -149,6 +168,7 @@ namespace Overwritten
 
         private void ReplaceWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            replaceButton.Enabled = !requireAdministrator.Visible && !cancelWorker.IsBusy ;
             WorkersRunWorkerCompleted(e, "замены");
 
             if (!e.Cancelled)
@@ -214,12 +234,6 @@ namespace Overwritten
                     }
                 }
             }
-
-            if (!requireAdministrator.Visible)
-            {
-                replaceButton.Enabled = !cancelWorker.IsBusy;
-                CheckUndo();
-            }
         }
 
         private void WorkersProgressChanged(string currentFileName, LoggerLevel loggerLevel)
@@ -228,7 +242,6 @@ namespace Overwritten
             logger.Write(currentFileName, loggerLevel);
 
             progressBar.PerformStep();
-            CheckUndo();
         }
 
         private void WorkersProgressChanged(ErrorReport report)
@@ -253,6 +266,7 @@ namespace Overwritten
         private void WorkersRunWorkerCompleted(RunWorkerCompletedEventArgs e, string name)
         {
             currentFile.Text = "";
+            cancelButton.Enabled = undoFiles.Count > 0;
 
             if (e.Error is UnauthorizedAccessException)
             {
@@ -316,12 +330,6 @@ namespace Overwritten
                 ShowMessageBoxWithLog("Отмена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
         }
 
-        private void CheckUndo()
-        {
-            if (!cancelWorker.IsBusy)
-                cancelButton.Enabled = undoFiles.Count > 0 || replaceWorker.IsBusy;
-        }
-
         private void CancelWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -364,6 +372,7 @@ namespace Overwritten
 
         private void CancelWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            replaceButton.Enabled = !replaceWorker.IsBusy;
             WorkersRunWorkerCompleted(e, "отмены");
 
             progressBar.Value = 0;
@@ -372,9 +381,7 @@ namespace Overwritten
             if (e.Error == null)
                 ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
             else
-                ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
-            
-            replaceButton.Enabled = !replaceWorker.IsBusy;
+                ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error); 
         }
 
         private void RequireAdministratorConfirmButton_Click(object sender, EventArgs e)
@@ -383,7 +390,8 @@ namespace Overwritten
             {
                 Process.Start(new ProcessStartInfo(Application.ExecutablePath)
                 {
-                    Verb = "runas"
+                    Verb = "runas",
+                    Arguments = $"--search=\"{searchCombo.Text}\" --replacement=\"{replacementCombo.Text}\" --searchDirectory=\"{searchDirectoryCombo.Text}\" --fullName={fullNameCheck.Checked} --nameChange={nameChangeCheck.Checked} --undo={undoCheck.Checked} --searchSubdirectories={searchSubdirectoriesCheck.Checked}"
                 });
                 Application.Exit();
             }
@@ -444,7 +452,6 @@ namespace Overwritten
             progressBar.Value = 0;
             progressBar.Visible = false;
             replaceButton.Enabled = true;
-            CheckUndo();
         }
 
         private void LogsStripMenuItem_Click(object sender, EventArgs e)
