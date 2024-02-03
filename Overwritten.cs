@@ -13,7 +13,7 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
-        public readonly Dictionary<int, List<UndoFile>> undoFiles = new Dictionary<int, List<UndoFile>>();
+        private readonly Dictionary<int, List<UndoFile>> undoFiles = new Dictionary<int, List<UndoFile>>();
         private readonly Dictionary<int, List<string>> createFiles = new Dictionary<int, List<string>>();
         private readonly Log logForm = new Log();
         private readonly History historyForm = new History();
