@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -21,15 +22,8 @@ namespace Overwritten
                     progressBar.Maximum = files.Count;
                     progressBar.Visible = true;
 
-                    fullNameCheckChecked = fullNameCheck.Checked;
-                    searchComboText = searchCombo.Text;
-
-                    nameChangeCheckChecked = nameChangeCheck.Checked;
-                    undoCheckChecked = undoCheck.Checked;
-                    replacementComboText = replacementCombo.Text;
-
                     if (!replaceWorker.IsBusy)
-                        replaceWorker.RunWorkerAsync();
+                        replaceWorker.RunWorkerAsync((searchCombo.Text, replacementCombo.Text, fullNameCheck.Checked, nameChangeCheck.Checked, undoCheck.Checked));
                     else
                         ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 }
@@ -54,18 +48,14 @@ namespace Overwritten
 
         private List<string> GetAllFiles(string directoryPath)
         {
-            List<string> files = new List<string>();
-            foreach (string file in Directory.GetFiles(directoryPath))
-            {
-                files.Add(file);
-            }
+            List<string> files = Directory.EnumerateFiles(directoryPath).ToList();
 
             if (searchSubdirectoriesCheck.Checked)
             {
-                foreach (string subDirectory in Directory.GetDirectories(directoryPath))
-                {
-                    files.AddRange(GetAllFiles(subDirectory));
-                }
+                Directory.EnumerateDirectories(directoryPath)
+                         .SelectMany(subDirectory => GetAllFiles(subDirectory))
+                         .ToList()
+                         .ForEach(file => files.Add(file));
             }
 
             return files;

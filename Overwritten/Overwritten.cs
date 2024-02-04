@@ -17,12 +17,6 @@ namespace Overwritten
         private List<string> files;
         private Logger logger = new Logger(new Logger.Properties().Debug());
 
-        private bool fullNameCheckChecked;
-        private string searchComboText;
-        private bool nameChangeCheckChecked;
-        private bool undoCheckChecked;
-        private string replacementComboText;
-
         private bool runReplace;
 
         public Overwritten()

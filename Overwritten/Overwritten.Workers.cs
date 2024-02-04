@@ -18,7 +18,7 @@ namespace Overwritten
             progressBar.PerformStep();
         }
 
-        private void WorkersProgressChanged(ErrorReport report)
+        private void WorkersProgressChanged((string message, Exception exception) report)
         {
             WorkersProgressChanged(report.message + ": " + report.exception.Message, LoggerLevel.Error);
 
@@ -27,6 +27,8 @@ namespace Overwritten
 
         private void ReplaceWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            var arguments = ((string search, string replacement, bool fullName, bool nameChange, bool undo))e.Argument;
+            
             BackgroundWorker worker = sender as BackgroundWorker;
 
             int key = undoFiles.Keys.Count;
@@ -36,7 +38,7 @@ namespace Overwritten
 
             foreach (string file in files)
             {
-                if ((fullNameCheckChecked ? searchComboText == Path.GetFileName(file) : searchComboText.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any()) || searchComboText == "*")
+                if ((arguments.fullName ? arguments.search == Path.GetFileName(file) : arguments.search.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any()) || arguments.search == "*")
                 {
                     worker.ReportProgress(0, file);
 
@@ -46,36 +48,36 @@ namespace Overwritten
                         break;
                     }
 
-                    if (undoCheckChecked)
+                    if (arguments.undo)
                         undoFiles[key].Add(new UndoFile(file));
 
-                    if (nameChangeCheckChecked)
+                    if (arguments.nameChange)
                     {
                         try
                         {
-                            File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
-                            File.Copy(replacementComboText, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)), true);
+                            File.Move(file, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(arguments.replacement)));
+                            File.Copy(arguments.replacement, Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(arguments.replacement)), true);
 
-                            if (undoCheckChecked)
-                                createFiles[key].Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(replacementComboText)));
-                            if (Path.GetFileName(file) != Path.GetFileName(replacementComboText))
+                            if (arguments.undo)
+                                createFiles[key].Add(Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(arguments.replacement)));
+                            if (Path.GetFileName(file) != Path.GetFileName(arguments.replacement))
                                 File.Delete(file);
                         }
                         catch (Exception ex)
                         {
-                            worker.ReportProgress(0, new ErrorReport("Не удалось изменить название файлу", ex));
+                            worker.ReportProgress(0, ("Не удалось изменить название файлу", ex));
                         }
                     }
                     else
-                        File.Copy(replacementComboText, file, true);
+                        File.Copy(arguments.replacement, file, true);
                 }
             }
         }
 
         private void ReplaceWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.UserState is ErrorReport report)
-                WorkersProgressChanged(report);
+            if (!(e.UserState is string))
+                WorkersProgressChanged(((string message, Exception exception))e.UserState);
             else
                 WorkersProgressChanged("Замена: " + (string)e.UserState, LoggerLevel.Info);
         }
@@ -114,42 +116,15 @@ namespace Overwritten
                     else
                         ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
 
-                    DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell
-                    {
-                        Value = searchCombo.Text
-                    };
-                    DataGridViewTextBoxCell replacementCell = new DataGridViewTextBoxCell
-                    {
-                        Value = replacementCombo.Text
-                    };
-                    DataGridViewTextBoxCell searchDirectoryCell = new DataGridViewTextBoxCell
-                    {
-                        Value = searchDirectoryCombo.Text
-                    };
-                    DataGridViewCheckBoxCell fullNameCell = new DataGridViewCheckBoxCell
-                    {
-                        Value = fullNameCheck.Checked
-                    };
-                    DataGridViewCheckBoxCell nameChangeCell = new DataGridViewCheckBoxCell
-                    {
-                        Value = nameChangeCheck.Checked
-                    };
-                    DataGridViewCheckBoxCell undoCell = new DataGridViewCheckBoxCell
-                    {
-                        Value = undoCheck.Checked
-                    };
-                    DataGridViewCheckBoxCell searchSubdirectoriesCell = new DataGridViewCheckBoxCell
-                    {
-                        Value = searchSubdirectoriesCheck.Checked
-                    };
-                    DataGridViewTextBoxCell IdCell = new DataGridViewTextBoxCell
-                    {
-                        Value = (undoFiles.Keys.Count - 1).ToString()
-                    };
-                    DataGridViewButtonCell cancelButtonCell = new DataGridViewButtonCell
-                    {
-                        Value = "Отмена"
-                    };
+                    DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell { Value = searchCombo.Text };
+                    DataGridViewTextBoxCell replacementCell = new DataGridViewTextBoxCell { Value = replacementCombo.Text };
+                    DataGridViewTextBoxCell searchDirectoryCell = new DataGridViewTextBoxCell { Value = searchDirectoryCombo.Text };
+                    DataGridViewCheckBoxCell fullNameCell = new DataGridViewCheckBoxCell { Value = fullNameCheck.Checked };
+                    DataGridViewCheckBoxCell nameChangeCell = new DataGridViewCheckBoxCell { Value = nameChangeCheck.Checked };
+                    DataGridViewCheckBoxCell undoCell = new DataGridViewCheckBoxCell { Value = undoCheck.Checked };
+                    DataGridViewCheckBoxCell searchSubdirectoriesCell = new DataGridViewCheckBoxCell { Value = searchSubdirectoriesCheck.Checked };
+                    DataGridViewTextBoxCell IdCell = new DataGridViewTextBoxCell { Value = (undoFiles.Keys.Count - 1).ToString() };
+                    DataGridViewButtonCell cancelButtonCell = new DataGridViewButtonCell { Value = "Отмена" };
 
                     DataGridViewRow row = new DataGridViewRow();
                     row.Cells.AddRange(searchCell, replacementCell, searchDirectoryCell, fullNameCell, nameChangeCell, undoCell, searchSubdirectoriesCell, IdCell, cancelButtonCell);
@@ -201,8 +176,8 @@ namespace Overwritten
 
         private void CancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.UserState is ErrorReport report)
-                WorkersProgressChanged(report);
+            if (e.UserState != null)
+                WorkersProgressChanged(((string message, Exception exception))e.UserState);
             else
                 WorkersProgressChanged((string)e.UserState, LoggerLevel.Info);
         }
@@ -219,18 +194,6 @@ namespace Overwritten
                 ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
             else
                 ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
-        }
-
-        private class ErrorReport
-        {
-            public string message;
-            public Exception exception;
-
-            public ErrorReport(string message, Exception exception)
-            {
-                this.message = message;
-                this.exception = exception;
-            }
         }
     }
 }
