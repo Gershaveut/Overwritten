@@ -10,12 +10,14 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
-        private readonly Dictionary<int, List<UndoFile>> undoFiles = new Dictionary<int, List<UndoFile>>();
-        private readonly Dictionary<int, List<string>> createFiles = new Dictionary<int, List<string>>();
+        private readonly Dictionary<long, List<UndoFile>> undoFiles = new();
+        private readonly Dictionary<long, List<string>> createFiles = new();
         private readonly Log logForm = new Log();
         private readonly History historyForm = new History();
+
         private List<string> files;
         private Logger logger = new Logger(new Logger.Properties().Debug());
+        private long lastId;
 
         private bool runReplace;
 
@@ -60,7 +62,13 @@ namespace Overwritten
 
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            Cancel(undoFiles.Keys.Count - 1, historyForm.historyDataGridView.Rows.Count - 1);
+            var rows = historyForm.historyDataGridView.Rows;
+            var lastRow = rows.GetLastRow(DataGridViewElementStates.None);
+
+            if (rows.Count > 0)
+                Cancel(Convert.ToInt64(rows[lastRow].Cells[rows[lastRow].Cells.Count - 2].Value), lastRow);
+            else
+                Cancel(lastId);
         }
 
         private void RequireAdministratorConfirmButton_Click(object sender, EventArgs e)

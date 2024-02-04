@@ -61,18 +61,21 @@ namespace Overwritten
             return files;
         }
 
-        public void Cancel(int id, int historyIndex)
+        public void Cancel(long id, int historyIndex)
+        {
+            historyForm.historyDataGridView.Rows.RemoveAt(historyIndex);
+
+            logger.Write($"Удаление {historyIndex} записи в истории", LoggerLevel.Info);
+
+            Cancel(id);
+        }
+
+        public void Cancel(long id)
         {
             if (!cancelWorker.IsBusy)
             {
                 if (replaceWorker.IsBusy)
                     replaceWorker.CancelAsync();
-                else
-                {
-                    historyForm.historyDataGridView.Rows.RemoveAt(historyIndex);
-
-                    logger.Write($"Удаление {historyIndex} записи в истории", LoggerLevel.Info);
-                }
 
                 replaceButton.Enabled = false;
                 cancelButton.Enabled = false;

@@ -28,10 +28,10 @@ namespace Overwritten
         private void ReplaceWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             var arguments = ((string search, string replacement, bool fullName, bool nameChange, bool undo))e.Argument;
-            
-            BackgroundWorker worker = sender as BackgroundWorker;
 
-            int key = undoFiles.Keys.Count;
+            BackgroundWorker worker = sender as BackgroundWorker;
+            
+            long key = ++lastId;
 
             undoFiles.Add(key, new List<UndoFile>());
             createFiles.Add(key, new List<string>());
@@ -76,7 +76,7 @@ namespace Overwritten
 
         private void ReplaceWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (!(e.UserState is string))
+            if (e.UserState is (string, Exception))
                 WorkersProgressChanged(((string message, Exception exception))e.UserState);
             else
                 WorkersProgressChanged("Замена: " + (string)e.UserState, LoggerLevel.Info);
@@ -85,7 +85,8 @@ namespace Overwritten
         private void WorkersRunWorkerCompleted(RunWorkerCompletedEventArgs e, string name)
         {
             currentFile.Text = "";
-            cancelButton.Enabled = undoFiles.Count > 0;
+            if (!cancelWorker.IsBusy)
+                cancelButton.Enabled = undoFiles.Count > 0;
 
             if (e.Error is UnauthorizedAccessException)
             {
@@ -106,6 +107,9 @@ namespace Overwritten
 
             if (!e.Cancelled)
             {
+                if (e.Error != null)
+                    ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+
                 if (progressBar.Value > 0)
                 {
                     progressBar.Value = 0;
@@ -113,8 +117,6 @@ namespace Overwritten
 
                     if (e.Error == null)
                         ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
-                    else
-                        ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
 
                     DataGridViewTextBoxCell searchCell = new DataGridViewTextBoxCell { Value = searchCombo.Text };
                     DataGridViewTextBoxCell replacementCell = new DataGridViewTextBoxCell { Value = replacementCombo.Text };
@@ -123,7 +125,7 @@ namespace Overwritten
                     DataGridViewCheckBoxCell nameChangeCell = new DataGridViewCheckBoxCell { Value = nameChangeCheck.Checked };
                     DataGridViewCheckBoxCell undoCell = new DataGridViewCheckBoxCell { Value = undoCheck.Checked };
                     DataGridViewCheckBoxCell searchSubdirectoriesCell = new DataGridViewCheckBoxCell { Value = searchSubdirectoriesCheck.Checked };
-                    DataGridViewTextBoxCell IdCell = new DataGridViewTextBoxCell { Value = (undoFiles.Keys.Count - 1).ToString() };
+                    DataGridViewTextBoxCell IdCell = new DataGridViewTextBoxCell { Value = lastId.ToString() };
                     DataGridViewButtonCell cancelButtonCell = new DataGridViewButtonCell { Value = "Отмена" };
 
                     DataGridViewRow row = new DataGridViewRow();
@@ -132,7 +134,7 @@ namespace Overwritten
 
                     logger.Write("Запись замены в историю", LoggerLevel.Info);
                 }
-                else
+                else if (e.Error == null)
                 {
                     if (ShowMessageBoxWithLog("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning, LoggerLevel.Warn) == DialogResult.Retry)
                     {
@@ -146,7 +148,7 @@ namespace Overwritten
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            int id = (int)e.Argument;
+            long id = (long)e.Argument;
 
             if (replaceWorker.IsBusy)
                 worker.ReportProgress(0, "Ожидание завершения замены");
@@ -176,7 +178,7 @@ namespace Overwritten
 
         private void CancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (e.UserState != null)
+            if (e.UserState is (string, Exception))
                 WorkersProgressChanged(((string message, Exception exception))e.UserState);
             else
                 WorkersProgressChanged((string)e.UserState, LoggerLevel.Info);
