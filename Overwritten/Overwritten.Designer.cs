@@ -92,14 +92,12 @@ namespace Overwritten
             // 
             searchCombo.AllowDrop = true;
             searchCombo.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            searchCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            searchCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
             searchCombo.ForeColor = SystemColors.GrayText;
             searchCombo.FormattingEnabled = true;
             searchCombo.Location = new Point(14, 37);
             searchCombo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             searchCombo.Name = "searchCombo";
-            searchCombo.Size = new Size(344, 24);
+            searchCombo.Size = new Size(344, 23);
             searchCombo.TabIndex = 8;
             searchCombo.Tag = "Поиск";
             searchCombo.Text = "Поиск";
@@ -148,14 +146,12 @@ namespace Overwritten
             // 
             replacementCombo.AllowDrop = true;
             replacementCombo.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            replacementCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            replacementCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
             replacementCombo.ForeColor = SystemColors.GrayText;
             replacementCombo.FormattingEnabled = true;
             replacementCombo.Location = new Point(14, 67);
             replacementCombo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             replacementCombo.Name = "replacementCombo";
-            replacementCombo.Size = new Size(308, 24);
+            replacementCombo.Size = new Size(308, 23);
             replacementCombo.TabIndex = 9;
             replacementCombo.Tag = "Заменить";
             replacementCombo.Text = "Заменить";
@@ -169,13 +165,11 @@ namespace Overwritten
             // 
             searchDirectoryCombo.AllowDrop = true;
             searchDirectoryCombo.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            searchDirectoryCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            searchDirectoryCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
             searchDirectoryCombo.FormattingEnabled = true;
             searchDirectoryCombo.Location = new Point(125, 151);
             searchDirectoryCombo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             searchDirectoryCombo.Name = "searchDirectoryCombo";
-            searchDirectoryCombo.Size = new Size(198, 24);
+            searchDirectoryCombo.Size = new Size(198, 23);
             searchDirectoryCombo.TabIndex = 10;
             searchDirectoryCombo.DragDrop += SearchDirectoryCombo_DragDrop;
             searchDirectoryCombo.DragEnter += SearchDirectoryCombo_DragEnter;
@@ -379,7 +373,6 @@ namespace Overwritten
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(372, 422);
             Controls.Add(requireAdministrator);
             Controls.Add(fileCountLabel);
@@ -402,6 +395,8 @@ namespace Overwritten
             MainMenuStrip = menuStrip;
             Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             MaximizeBox = false;
+            MaximumSize = new Size(1000, 461);
+            MinimumSize = new Size(388, 461);
             Name = "Overwritten";
             Text = "Overwritten";
             requireAdministrator.ResumeLayout(false);

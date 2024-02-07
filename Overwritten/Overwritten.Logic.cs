@@ -1,5 +1,6 @@
 ﻿using OFGmCoreCS.LoggerSimple;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,10 @@ namespace Overwritten
     {
         private void Replace()
         {
+            AddItemNotCopy(searchCombo.Items, searchCombo.Text);
+            AddItemNotCopy(replacementCombo.Items, replacementCombo.Text);
+            AddItemNotCopy(searchDirectoryCombo.Items, searchDirectoryCombo.Text);
+
             replaceButton.Enabled = false;
             cancelButton.Enabled = true;
 
@@ -44,6 +49,12 @@ namespace Overwritten
                 replaceButton.Enabled = true;
                 cancelButton.Enabled = false;
             }
+        }
+
+        private void AddItemNotCopy(IList list, string item)
+        {
+            if (!list.Contains(item))
+                list.Add(item);
         }
 
         private List<string> GetAllFiles(string directoryPath)
