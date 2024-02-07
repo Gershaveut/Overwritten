@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -149,6 +150,39 @@ namespace Overwritten
         private void HistoryStripMenuItem_Click(object sender, EventArgs e)
         {
             historyForm.Show();
+        }
+
+        private void ReplacementCombo_DragEnter(object sender, DragEventArgs e)
+        {
+            FileLinkEnter(e);
+        }
+
+        private void ReplacementCombo_DragDrop(object sender, DragEventArgs e)
+        {
+            replacementCombo.Text = ((string[])e.Data.GetData(DataFormats.FileDrop))[0];
+        }
+
+        private void SearchCombo_DragEnter(object sender, DragEventArgs e)
+        {
+            FileLinkEnter(e);
+        }
+
+        private void SearchCombo_DragDrop(object sender, DragEventArgs e)
+        {
+            searchCombo.Text = Path.GetFileName(((string[])e.Data.GetData(DataFormats.FileDrop))[0]);
+        }
+
+        private void SearchDirectoryCombo_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) && Directory.Exists(((string[])e.Data.GetData(DataFormats.FileDrop))[0]))
+                e.Effect = DragDropEffects.Link;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void SearchDirectoryCombo_DragDrop(object sender, DragEventArgs e)
+        {
+            searchDirectoryCombo.Text = ((string[])e.Data.GetData(DataFormats.FileDrop))[0];
         }
     }
 }

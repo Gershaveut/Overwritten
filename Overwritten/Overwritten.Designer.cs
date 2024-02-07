@@ -48,7 +48,7 @@ namespace Overwritten
             requireAdministratorPicture = new System.Windows.Forms.PictureBox();
             requireAdministratorCancelButton = new System.Windows.Forms.Button();
             requireAdministratorConfirmButton = new System.Windows.Forms.Button();
-            currentFile = new System.Windows.Forms.Label();
+            currentFileLabel = new System.Windows.Forms.Label();
             cancelButton = new System.Windows.Forms.Button();
             undoCheck = new System.Windows.Forms.CheckBox();
             replaceWorker = new System.ComponentModel.BackgroundWorker();
@@ -58,6 +58,7 @@ namespace Overwritten
             fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             logsStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             historyStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            fileCountLabel = new System.Windows.Forms.Label();
             requireAdministrator.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)requireAdministratorPicture).BeginInit();
             menuStrip.SuspendLayout();
@@ -89,6 +90,7 @@ namespace Overwritten
             // 
             // searchCombo
             // 
+            searchCombo.AllowDrop = true;
             searchCombo.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             searchCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             searchCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
@@ -102,6 +104,8 @@ namespace Overwritten
             searchCombo.Tag = "Поиск";
             searchCombo.Text = "Поиск";
             searchCombo.TextChanged += ComboBoxes_TextChanged;
+            searchCombo.DragDrop += SearchCombo_DragDrop;
+            searchCombo.DragEnter += SearchCombo_DragEnter;
             searchCombo.Enter += ComboBoxes_Enter;
             searchCombo.Leave += ComboBoxes_Leave;
             // 
@@ -142,6 +146,7 @@ namespace Overwritten
             // 
             // replacementCombo
             // 
+            replacementCombo.AllowDrop = true;
             replacementCombo.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             replacementCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             replacementCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
@@ -155,11 +160,14 @@ namespace Overwritten
             replacementCombo.Tag = "Заменить";
             replacementCombo.Text = "Заменить";
             replacementCombo.TextChanged += ComboBoxes_TextChanged;
+            replacementCombo.DragDrop += ReplacementCombo_DragDrop;
+            replacementCombo.DragEnter += ReplacementCombo_DragEnter;
             replacementCombo.Enter += ComboBoxes_Enter;
             replacementCombo.Leave += ComboBoxes_Leave;
             // 
             // searchDirectoryCombo
             // 
+            searchDirectoryCombo.AllowDrop = true;
             searchDirectoryCombo.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             searchDirectoryCombo.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             searchDirectoryCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
@@ -169,6 +177,8 @@ namespace Overwritten
             searchDirectoryCombo.Name = "searchDirectoryCombo";
             searchDirectoryCombo.Size = new Size(198, 24);
             searchDirectoryCombo.TabIndex = 10;
+            searchDirectoryCombo.DragDrop += SearchDirectoryCombo_DragDrop;
+            searchDirectoryCombo.DragEnter += SearchDirectoryCombo_DragEnter;
             // 
             // fullNameCheck
             // 
@@ -256,16 +266,16 @@ namespace Overwritten
             requireAdministratorConfirmButton.UseVisualStyleBackColor = true;
             requireAdministratorConfirmButton.Click += RequireAdministratorConfirmButton_Click;
             // 
-            // currentFile
+            // currentFileLabel
             // 
-            currentFile.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            currentFile.BackColor = Color.Transparent;
-            currentFile.Location = new Point(14, 301);
-            currentFile.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            currentFile.Name = "currentFile";
-            currentFile.Size = new Size(344, 44);
-            currentFile.TabIndex = 14;
-            currentFile.TextAlign = ContentAlignment.MiddleCenter;
+            currentFileLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            currentFileLabel.BackColor = Color.Transparent;
+            currentFileLabel.Location = new Point(14, 247);
+            currentFileLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            currentFileLabel.Name = "currentFileLabel";
+            currentFileLabel.Size = new Size(344, 76);
+            currentFileLabel.TabIndex = 14;
+            currentFileLabel.TextAlign = ContentAlignment.BottomCenter;
             // 
             // cancelButton
             // 
@@ -357,17 +367,26 @@ namespace Overwritten
             historyStripMenuItem.Text = "История";
             historyStripMenuItem.Click += HistoryStripMenuItem_Click;
             // 
+            // fileCountLabel
+            // 
+            fileCountLabel.Location = new Point(14, 323);
+            fileCountLabel.Name = "fileCountLabel";
+            fileCountLabel.Size = new Size(344, 22);
+            fileCountLabel.TabIndex = 18;
+            fileCountLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // Overwritten
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(372, 422);
+            Controls.Add(requireAdministrator);
+            Controls.Add(fileCountLabel);
             Controls.Add(searchSubdirectoriesCheck);
             Controls.Add(undoCheck);
             Controls.Add(cancelButton);
-            Controls.Add(currentFile);
-            Controls.Add(requireAdministrator);
+            Controls.Add(currentFileLabel);
             Controls.Add(nameChangeCheck);
             Controls.Add(fullNameCheck);
             Controls.Add(replaceButton);
@@ -412,7 +431,7 @@ namespace Overwritten
         private System.Windows.Forms.Button requireAdministratorCancelButton;
         private System.Windows.Forms.Button requireAdministratorConfirmButton;
         private System.Windows.Forms.Label requireAdministratorLabel;
-        private System.Windows.Forms.Label currentFile;
+        private System.Windows.Forms.Label currentFileLabel;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.CheckBox undoCheck;
         private System.ComponentModel.BackgroundWorker replaceWorker;
@@ -422,5 +441,6 @@ namespace Overwritten
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem logsStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem historyStripMenuItem;
+        private System.Windows.Forms.Label fileCountLabel;
     }
 }

@@ -63,11 +63,10 @@ namespace Overwritten
 
         public void Cancel(long id, int historyIndex)
         {
-            historyForm.historyDataGridView.Rows.RemoveAt(historyIndex);
-
-            logger.Write($"Удаление {historyIndex} записи в истории", LoggerLevel.Info);
-
             Cancel(id);
+
+            historyForm.historyDataGridView.Rows.RemoveAt(historyIndex);
+            logger.Write($"Удаление {historyIndex} записи в истории", LoggerLevel.Info);
         }
 
         public void Cancel(long id)
@@ -114,6 +113,14 @@ namespace Overwritten
                     file.Delete();
                 }
             }
+        }
+
+        private static void FileLinkEnter(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) && File.Exists(((string[])e.Data.GetData(DataFormats.FileDrop))[0]))
+                e.Effect = DragDropEffects.Link;
+            else
+                e.Effect = DragDropEffects.None;
         }
 
         public class UndoFile

@@ -12,10 +12,11 @@ namespace Overwritten
     {
         private void WorkersProgressChanged(string currentFileName, LoggerLevel loggerLevel)
         {
-            currentFile.Text = currentFileName;
-            logger.Write(currentFileName, loggerLevel);
-
             progressBar.PerformStep();
+
+            currentFileLabel.Text = currentFileName;
+            fileCountLabel.Text = $"{progressBar.Value}/{progressBar.Maximum}";
+            logger.Write($"[{progressBar.Value}/{progressBar.Maximum}] " + currentFileName, loggerLevel);
         }
 
         private void WorkersProgressChanged((string message, Exception exception) report)
@@ -84,7 +85,8 @@ namespace Overwritten
 
         private void WorkersRunWorkerCompleted(RunWorkerCompletedEventArgs e, string name)
         {
-            currentFile.Text = "";
+            currentFileLabel.Text = "";
+            fileCountLabel.Text = "";
             if (!cancelWorker.IsBusy)
                 cancelButton.Enabled = undoFiles.Count > 0;
 
