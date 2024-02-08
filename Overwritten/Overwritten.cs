@@ -17,7 +17,7 @@ namespace Overwritten
         private readonly History historyForm = new History();
 
         private List<string> files;
-        private Logger logger = new Logger(new Logger.Properties().Debug());
+        private Logger logger;
         private long lastId;
 
         private bool runReplace;

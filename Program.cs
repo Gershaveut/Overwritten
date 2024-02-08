@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using OFGmCoreCS.Util;
 
 namespace Overwritten
 {
@@ -31,10 +32,10 @@ namespace Overwritten
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(CrashReporter.CreateReport(ex), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             #endif
-
+            
             overwritten.ClearUndoFiles();
         }
     }
