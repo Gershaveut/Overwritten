@@ -12,15 +12,16 @@ namespace Overwritten
 {
     public partial class Overwritten : Form
     {
+        public Logger logger;
+
         private readonly Dictionary<long, List<UndoFile>> undoFiles = new();
         private readonly Dictionary<long, List<string>> createFiles = new();
         private readonly Log logForm = new Log();
         private readonly History historyForm = new History();
 
         private List<string> files;
-        private Logger logger;
+        
         private long lastId;
-
         private bool runReplace;
 
         public Overwritten()

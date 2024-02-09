@@ -38,7 +38,8 @@ namespace Overwritten
                 new CrashReport(CrashReporter.CreateReport(ex, new FileLogger("CrashReport", logPath), overwritten.GetReport())).ShowDialog();
             }
             #endif
-            
+
+            overwritten.logger.fileLogger.SaveFile();
             overwritten.ClearUndoFiles();
         }
     }
