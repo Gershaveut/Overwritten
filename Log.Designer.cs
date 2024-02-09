@@ -29,73 +29,76 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Log));
-            this.logTextBox = new System.Windows.Forms.RichTextBox();
-            this.BackButton = new System.Windows.Forms.Button();
-            this.CopyButton = new System.Windows.Forms.Button();
-            this.ClearButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            logTextBox = new System.Windows.Forms.RichTextBox();
+            BackButton = new System.Windows.Forms.Button();
+            CopyButton = new System.Windows.Forms.Button();
+            ClearButton = new System.Windows.Forms.Button();
+            SuspendLayout();
             // 
             // logTextBox
             // 
-            this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTextBox.Location = new System.Drawing.Point(12, 12);
-            this.logTextBox.Name = "logTextBox";
-            this.logTextBox.ReadOnly = true;
-            this.logTextBox.Size = new System.Drawing.Size(460, 358);
-            this.logTextBox.TabIndex = 0;
-            this.logTextBox.Text = "";
-            this.logTextBox.VisibleChanged += new System.EventHandler(this.LogTextBox_VisibleChanged);
+            logTextBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            logTextBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            logTextBox.Location = new System.Drawing.Point(14, 14);
+            logTextBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            logTextBox.Name = "logTextBox";
+            logTextBox.ReadOnly = true;
+            logTextBox.Size = new System.Drawing.Size(536, 412);
+            logTextBox.TabIndex = 0;
+            logTextBox.Text = "";
+            logTextBox.VisibleChanged += LogTextBox_VisibleChanged;
             // 
             // BackButton
             // 
-            this.BackButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BackButton.Location = new System.Drawing.Point(397, 376);
-            this.BackButton.Name = "BackButton";
-            this.BackButton.Size = new System.Drawing.Size(75, 23);
-            this.BackButton.TabIndex = 1;
-            this.BackButton.Text = "Назад";
-            this.BackButton.UseVisualStyleBackColor = true;
-            this.BackButton.Click += new System.EventHandler(this.BackButton_Click);
+            BackButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            BackButton.Location = new System.Drawing.Point(463, 434);
+            BackButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            BackButton.Name = "BackButton";
+            BackButton.Size = new System.Drawing.Size(88, 27);
+            BackButton.TabIndex = 1;
+            BackButton.Text = "Назад";
+            BackButton.UseVisualStyleBackColor = true;
+            BackButton.Click += BackButton_Click;
             // 
             // CopyButton
             // 
-            this.CopyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.CopyButton.Location = new System.Drawing.Point(316, 376);
-            this.CopyButton.Name = "CopyButton";
-            this.CopyButton.Size = new System.Drawing.Size(75, 23);
-            this.CopyButton.TabIndex = 2;
-            this.CopyButton.Text = "Копировать";
-            this.CopyButton.UseVisualStyleBackColor = true;
-            this.CopyButton.Click += new System.EventHandler(this.CopyButton_Click);
+            CopyButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            CopyButton.Location = new System.Drawing.Point(369, 434);
+            CopyButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            CopyButton.Name = "CopyButton";
+            CopyButton.Size = new System.Drawing.Size(88, 27);
+            CopyButton.TabIndex = 2;
+            CopyButton.Text = "Копировать";
+            CopyButton.UseVisualStyleBackColor = true;
+            CopyButton.Click += CopyButton_Click;
             // 
             // ClearButton
             // 
-            this.ClearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ClearButton.Location = new System.Drawing.Point(12, 376);
-            this.ClearButton.Name = "ClearButton";
-            this.ClearButton.Size = new System.Drawing.Size(75, 23);
-            this.ClearButton.TabIndex = 3;
-            this.ClearButton.Text = "Очистить";
-            this.ClearButton.UseVisualStyleBackColor = true;
-            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            ClearButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            ClearButton.Location = new System.Drawing.Point(14, 434);
+            ClearButton.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ClearButton.Name = "ClearButton";
+            ClearButton.Size = new System.Drawing.Size(88, 27);
+            ClearButton.TabIndex = 3;
+            ClearButton.Text = "Очистить";
+            ClearButton.UseVisualStyleBackColor = true;
+            ClearButton.Click += ClearButton_Click;
             // 
             // Log
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 411);
-            this.Controls.Add(this.ClearButton);
-            this.Controls.Add(this.CopyButton);
-            this.Controls.Add(this.BackButton);
-            this.Controls.Add(this.logTextBox);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Log";
-            this.Text = "Журнал";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Log_FormClosing);
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(565, 474);
+            Controls.Add(ClearButton);
+            Controls.Add(CopyButton);
+            Controls.Add(BackButton);
+            Controls.Add(logTextBox);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            Name = "Log";
+            Text = "Журнал";
+            FormClosing += Log_FormClosing;
+            ResumeLayout(false);
         }
 
         #endregion

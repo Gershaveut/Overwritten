@@ -1,4 +1,5 @@
 ﻿using OFGmCoreCS.LoggerSimple;
+using OFGmCoreCS.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -126,12 +127,26 @@ namespace Overwritten
             }
         }
 
-        private static void FileLinkEnter(DragEventArgs e)
+        private void FileLinkEnter(DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop) && File.Exists(((string[])e.Data.GetData(DataFormats.FileDrop))[0]))
                 e.Effect = DragDropEffects.Link;
             else
                 e.Effect = DragDropEffects.None;
+        }
+
+        public string GetReport()
+        {
+            string report = "Search: " + searchCombo.Text;
+            report += Environment.NewLine + "Replacement: " + replacementCombo.Text;
+            report += Environment.NewLine + "Search Directory: " + searchDirectoryCombo.Text + Utils.LineSeparator;
+
+            report += "Full Name: " + fullNameCheck.Checked;
+            report += Environment.NewLine + "Name Change: " + nameChangeCheck.Checked;
+            report += Environment.NewLine + "Undo: " + undoCheck.Checked;
+            report += Environment.NewLine + "Search Subdirectories: " + searchSubdirectoriesCheck.Checked + Utils.LineSeparator;
+
+            return report;
         }
 
         public class UndoFile

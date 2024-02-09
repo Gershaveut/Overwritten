@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using OFGmCoreCS.Util;
 
@@ -8,6 +9,7 @@ namespace Overwritten
     {
         public static bool debug;
         public static string[] args;
+        public static string logPath = Path.Combine(Directory.GetCurrentDirectory(), "log");
 
         public static Overwritten overwritten;
 
@@ -26,13 +28,14 @@ namespace Overwritten
             #endif
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
                 overwritten = new Overwritten();
                 Application.Run(overwritten);
             #if !DEBUG
             }
             catch (Exception ex)
             {
-                MessageBox.Show(CrashReporter.CreateReport(ex), "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                new CrashReport(CrashReporter.CreateReport(ex, new FileLogger("CrashReport", logPath), overwritten.GetReport())).ShowDialog();
             }
             #endif
             

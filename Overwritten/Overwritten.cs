@@ -1,5 +1,6 @@
 ﻿using OFGmCoreCS.LoggerSimple;
 using OFGmCoreCS.ProgramArgument;
+using OFGmCoreCS.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,7 +30,7 @@ namespace Overwritten
             Logger.Properties loggerProperties = new Logger.Properties();
             if (Program.debug)
                 loggerProperties.Debug();
-            logger = new Logger(loggerProperties);
+            logger = new Logger(loggerProperties, new FileLogger(Application.ProductName, Program.logPath));
 
             logger.LogWritten += LogWritten;
 
