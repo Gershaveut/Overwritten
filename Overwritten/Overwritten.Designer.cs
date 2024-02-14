@@ -48,6 +48,7 @@ namespace Overwritten
             requireAdministratorPicture = new System.Windows.Forms.PictureBox();
             requireAdministratorCancelButton = new System.Windows.Forms.Button();
             requireAdministratorConfirmButton = new System.Windows.Forms.Button();
+            fileCountLabel = new System.Windows.Forms.Label();
             currentFileLabel = new System.Windows.Forms.Label();
             cancelButton = new System.Windows.Forms.Button();
             undoCheck = new System.Windows.Forms.CheckBox();
@@ -58,7 +59,6 @@ namespace Overwritten
             fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             logsStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             historyStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            fileCountLabel = new System.Windows.Forms.Label();
             requireAdministrator.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)requireAdministratorPicture).BeginInit();
             menuStrip.SuspendLayout();
@@ -67,7 +67,7 @@ namespace Overwritten
             // progressBar
             // 
             progressBar.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            progressBar.Location = new Point(14, 348);
+            progressBar.Location = new Point(14, 349);
             progressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             progressBar.MarqueeAnimationSpeed = 0;
             progressBar.Name = "progressBar";
@@ -260,11 +260,21 @@ namespace Overwritten
             requireAdministratorConfirmButton.UseVisualStyleBackColor = true;
             requireAdministratorConfirmButton.Click += RequireAdministratorConfirmButton_Click;
             // 
+            // fileCountLabel
+            // 
+            fileCountLabel.BackColor = Color.Transparent;
+            fileCountLabel.ForeColor = SystemColors.ControlText;
+            fileCountLabel.Location = new Point(14, 318);
+            fileCountLabel.Name = "fileCountLabel";
+            fileCountLabel.Size = new Size(344, 28);
+            fileCountLabel.TabIndex = 18;
+            fileCountLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // currentFileLabel
             // 
             currentFileLabel.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             currentFileLabel.BackColor = Color.Transparent;
-            currentFileLabel.Location = new Point(14, 247);
+            currentFileLabel.Location = new Point(14, 242);
             currentFileLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             currentFileLabel.Name = "currentFileLabel";
             currentFileLabel.Size = new Size(344, 76);
@@ -361,36 +371,28 @@ namespace Overwritten
             historyStripMenuItem.Text = "История";
             historyStripMenuItem.Click += HistoryStripMenuItem_Click;
             // 
-            // fileCountLabel
-            // 
-            fileCountLabel.Location = new Point(14, 323);
-            fileCountLabel.Name = "fileCountLabel";
-            fileCountLabel.Size = new Size(344, 22);
-            fileCountLabel.TabIndex = 18;
-            fileCountLabel.TextAlign = ContentAlignment.MiddleCenter;
-            // 
             // Overwritten
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new Size(372, 422);
             Controls.Add(requireAdministrator);
-            Controls.Add(fileCountLabel);
             Controls.Add(searchSubdirectoriesCheck);
             Controls.Add(undoCheck);
             Controls.Add(cancelButton);
+            Controls.Add(fileCountLabel);
             Controls.Add(currentFileLabel);
             Controls.Add(nameChangeCheck);
             Controls.Add(fullNameCheck);
             Controls.Add(replaceButton);
             Controls.Add(searchDirectoryCombo);
-            Controls.Add(progressBar);
             Controls.Add(replacementCombo);
             Controls.Add(searchCombo);
             Controls.Add(replacementSelectionButton);
             Controls.Add(searchDirectoryLabel);
             Controls.Add(searchDirectorySelectionButton);
             Controls.Add(menuStrip);
+            Controls.Add(progressBar);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip;
             Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);

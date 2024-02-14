@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -20,9 +21,11 @@ namespace Overwritten
         private readonly History historyForm = new History();
 
         private List<string> files;
-        
+
         private long lastId;
         private bool runReplace;
+
+        private AutoResetEvent waitWorkersProgressChanged = new AutoResetEvent(false);
 
         public Overwritten()
         {

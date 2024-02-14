@@ -84,8 +84,6 @@ namespace Overwritten
         {
             historyDataGridView.Rows.Clear();
             Program.overwritten.ClearUndoFiles();
-
-            throw new Exception();
         }
     }
 }
