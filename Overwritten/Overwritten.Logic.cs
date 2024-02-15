@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -29,7 +30,7 @@ namespace Overwritten
                     progressBar.Visible = true;
 
                     if (!replaceWorker.IsBusy)
-                        replaceWorker.RunWorkerAsync((searchCombo.Text, replacementCombo.Text, fullNameCheck.Checked, nameChangeCheck.Checked, undoCheck.Checked));
+                        replaceWorker.RunWorkerAsync((searchCombo.Text, replacementCombo.Text, fullNameCheck.Checked, nameChangeCheck.Checked, undoCheck.Checked, progressBar, logger));
                     else
                         ShowMessageBoxWithLog("Замена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
                 }
@@ -77,11 +78,10 @@ namespace Overwritten
         {
             Cancel(id);
 
-            historyForm.historyDataGridView.Rows.RemoveAt(historyIndex);
-            logger.Write($"Удаление {historyIndex} записи в истории", LoggerLevel.Info);
+            removeHistoryIndex = historyIndex;
         }
 
-        public void Cancel(long id)
+        public void Cancel(long id) //TODO: Неправильный progressBar при отмене во время замены
         {
             if (!cancelWorker.IsBusy)
             {
@@ -90,12 +90,12 @@ namespace Overwritten
 
                 replaceButton.Enabled = false;
                 cancelButton.Enabled = false;
-                progressBar.Value = 0;
+                progressBar.Value = progressBar.Minimum;
 
                 progressBar.Maximum = undoFiles[id].Count + createFiles[id].Count;
                 progressBar.Visible = true;
 
-                cancelWorker.RunWorkerAsync(id);
+                cancelWorker.RunWorkerAsync((id, progressBar, logger));
             }
             else
                 ShowMessageBoxWithLog("Отмена уже выполняется", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
@@ -103,14 +103,25 @@ namespace Overwritten
 
         private void LogWritten(string message, LoggerLevel loggerLevel)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    LogWritten(message, loggerLevel);
+                });
+                return;
+            }
+
+            int startSelect = logForm.logTextBox.TextLength;
+
             logForm.logTextBox.AppendText(message);
 
-            logForm.logTextBox.Select(logForm.logTextBox.TextLength - message.Length, logForm.logTextBox.TextLength);
+            logForm.logTextBox.Select(startSelect, logForm.logTextBox.TextLength);
             logForm.logTextBox.SelectionColor = LoggerLevelColor.GetColor(loggerLevel);
             logForm.logTextBox.DeselectAll();
         }
 
-        private DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LoggerLevel logLevel)
+        public DialogResult ShowMessageBoxWithLog(string text, string caption, MessageBoxButtons buttons, MessageBoxIcon icon, LoggerLevel logLevel)
         {
             logger.Write(text, logLevel);
             return MessageBox.Show(text, caption, buttons, icon);
@@ -135,18 +146,25 @@ namespace Overwritten
                 e.Effect = DragDropEffects.None;
         }
 
-        public string GetReport()
+        public string GetReport() //TODO: У ComboBox нет текста
         {
-            string report = "Search: " + searchCombo.Text;
-            report += Environment.NewLine + "Replacement: " + replacementCombo.Text;
-            report += Environment.NewLine + "Search Directory: " + searchDirectoryCombo.Text + Utils.LineSeparator;
+            StringBuilder report = new StringBuilder();
 
-            report += "Full Name: " + fullNameCheck.Checked;
-            report += Environment.NewLine + "Name Change: " + nameChangeCheck.Checked;
-            report += Environment.NewLine + "Undo: " + undoCheck.Checked;
-            report += Environment.NewLine + "Search Subdirectories: " + searchSubdirectoriesCheck.Checked + Utils.LineSeparator;
+            report.Append("Search: " + searchCombo.Text);
+            report.AppendLine("Replacement: " + replacementCombo.Text);
+            report.AppendLine("Search Directory: " + searchDirectoryCombo.Text + Environment.NewLine);
 
-            return report;
+            report.AppendLine("Full Name: " + fullNameCheck.Checked);
+            report.AppendLine("Name Change: " + nameChangeCheck.Checked);
+            report.AppendLine("Undo: " + undoCheck.Checked);
+            report.AppendLine("Search Subdirectories: " + searchSubdirectoriesCheck.Checked + Utils.LineSeparator);
+
+            return report.ToString();
+        }
+
+        private static void LoggerWrite(ProgressBar progressBar, Logger logger, string file)
+        {
+            logger.Write($"[{progressBar.Value}/{progressBar.Maximum}] " + file, LoggerLevel.Info);
         }
 
         public class UndoFile

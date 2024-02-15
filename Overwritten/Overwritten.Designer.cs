@@ -70,10 +70,12 @@ namespace Overwritten
             progressBar.Location = new Point(14, 349);
             progressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             progressBar.MarqueeAnimationSpeed = 0;
+            progressBar.Minimum = 1;
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(344, 27);
             progressBar.Step = 1;
             progressBar.TabIndex = 0;
+            progressBar.Value = 1;
             progressBar.Visible = false;
             // 
             // replaceButton
@@ -431,13 +433,13 @@ namespace Overwritten
         private System.Windows.Forms.Label currentFileLabel;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.CheckBox undoCheck;
-        private System.ComponentModel.BackgroundWorker replaceWorker;
-        private System.ComponentModel.BackgroundWorker cancelWorker;
         private System.Windows.Forms.CheckBox searchSubdirectoriesCheck;
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem logsStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem historyStripMenuItem;
         private System.Windows.Forms.Label fileCountLabel;
+        internal System.ComponentModel.BackgroundWorker replaceWorker;
+        internal System.ComponentModel.BackgroundWorker cancelWorker;
     }
 }

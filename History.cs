@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OFGmCoreCS.LoggerSimple;
+using System;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -71,7 +72,19 @@ namespace Overwritten
 
             if (dataGridView.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
-                Program.overwritten.Cancel(Convert.ToInt32(dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex - 1].Value), e.RowIndex);
+                try
+                {
+                    if (!Program.overwritten.replaceWorker.IsBusy && !Program.overwritten.cancelWorker.IsBusy)
+                        Program.overwritten.Cancel(Convert.ToInt32(dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex - 1].Value), e.RowIndex);
+                    else
+                        Program.overwritten.ShowMessageBoxWithLog("Программа уже работает", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+                }
+                catch (Exception ex)
+                {
+                    Program.overwritten.ShowMessageBoxWithLog(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+
+                    Program.overwritten.logger.Write(ex.ToString(), LoggerLevel.Debug);
+                }
             }
         }
 

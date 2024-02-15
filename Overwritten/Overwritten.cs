@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Overwritten
@@ -25,7 +24,7 @@ namespace Overwritten
         private long lastId;
         private bool runReplace;
 
-        private AutoResetEvent waitWorkersProgressChanged = new AutoResetEvent(false);
+        private int? removeHistoryIndex;
 
         public Overwritten()
         {

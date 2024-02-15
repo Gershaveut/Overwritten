@@ -16,7 +16,6 @@ namespace Overwritten
 
             currentFileLabel.Text = currentFileName;
             fileCountLabel.Text = $"{progressBar.Value}/{progressBar.Maximum}";
-            logger.Write($"[{progressBar.Value}/{progressBar.Maximum}] " + currentFileName, loggerLevel);
         }
 
         private void WorkersProgressChanged((string message, Exception exception) report)
@@ -28,10 +27,10 @@ namespace Overwritten
 
         private void ReplaceWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            var arguments = ((string search, string replacement, bool fullName, bool nameChange, bool undo))e.Argument;
+            var arguments = ((string search, string replacement, bool fullName, bool nameChange, bool undo, ProgressBar progressBar, Logger logger))e.Argument;
 
             BackgroundWorker worker = sender as BackgroundWorker;
-            
+
             long key = ++lastId;
 
             undoFiles.Add(key, new List<UndoFile>());
@@ -42,6 +41,7 @@ namespace Overwritten
                 if ((arguments.fullName ? arguments.search == Path.GetFileName(file) : arguments.search.Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries).Intersect(Path.GetFileName(file).Split(new[] { " ", ".", "_", "-" }, StringSplitOptions.RemoveEmptyEntries)).Any()) || arguments.search == "*")
                 {
                     worker.ReportProgress(0, file);
+                    LoggerWrite(arguments.progressBar, arguments.logger, "Замена: " + file);
 
                     if (worker.CancellationPending == true)
                     {
@@ -112,10 +112,9 @@ namespace Overwritten
                 if (e.Error != null)
                     ShowMessageBoxWithLog("Замена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
 
-                if (progressBar.Value > 0)
+                if (progressBar.Value > progressBar.Minimum)
                 {
-                    progressBar.Value = 0;
-                    progressBar.Visible = false;
+                    progressBar.Value = progressBar.Minimum;
 
                     if (e.Error == null)
                         ShowMessageBoxWithLog("Замена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
@@ -143,6 +142,8 @@ namespace Overwritten
                         ReplaceButton_Click(replaceButton, e);
                     }
                 }
+
+                progressBar.Visible = false;
             }
         }
 
@@ -150,7 +151,7 @@ namespace Overwritten
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            long id = (long)e.Argument;
+            var arguments = ((long id, ProgressBar progressBar, Logger logger))e.Argument;
 
             if (replaceWorker.IsBusy)
                 worker.ReportProgress(0, "Ожидание завершения замены");
@@ -160,22 +161,24 @@ namespace Overwritten
                 Application.DoEvents();
             }
 
-            foreach (string file in createFiles[id])
+            foreach (string file in createFiles[arguments.id])
             {
                 worker.ReportProgress(0, "Удаление: " + file);
+                LoggerWrite(arguments.progressBar, arguments.logger, "Удаление: " + file);
 
                 File.Delete(file);
             }
 
-            foreach (UndoFile file in undoFiles[id])
+            foreach (UndoFile file in undoFiles[arguments.id])
             {
                 worker.ReportProgress(0, "Возвращение: " + file.undoPath);
+                LoggerWrite(arguments.progressBar, arguments.logger, "Возвращение: " + file.undoPath);
 
                 file.Undo();
             }
 
-            undoFiles.Remove(id);
-            createFiles.Remove(id);
+            undoFiles.Remove(arguments.id);
+            createFiles.Remove(arguments.id);
         }
 
         private void CancelWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -191,11 +194,20 @@ namespace Overwritten
             replaceButton.Enabled = !replaceWorker.IsBusy;
             WorkersRunWorkerCompleted(e, "отмены");
 
-            progressBar.Value = 0;
+            progressBar.Value = progressBar.Minimum;
             progressBar.Visible = false;
 
             if (e.Error == null)
+            {
+                if (removeHistoryIndex != null)
+                {
+                    logger.Write($"Удаление {removeHistoryIndex} записи в истории", LoggerLevel.Info);
+                    historyForm.historyDataGridView.Rows.RemoveAt((int)removeHistoryIndex);
+                    removeHistoryIndex = null;
+                }
+
                 ShowMessageBoxWithLog("Отмена была выполнена", "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, LoggerLevel.Info);
+            }
             else
                 ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
         }
