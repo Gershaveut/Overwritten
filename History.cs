@@ -54,11 +54,11 @@ namespace Overwritten
             {
                 Name = "Отмена замены",
             };
-            
+
             historyDataGridView.Columns.AddRange(searchColumn, replacementColumn, searchDirectoryColumn, fullNameColumn, nameChangeColumn, undoColumn, searchSubdirectoriesColumn, IdColumn, cancelButtonColum);
         }
 
- 
+
 
         private void History_FormClosing(object sender, FormClosingEventArgs e)
         {

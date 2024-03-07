@@ -61,11 +61,21 @@ namespace Overwritten.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Admin {
+            get {
+                object obj = ResourceManager.GetObject("Admin", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
         /// </summary>
-        internal static System.Drawing.Icon Icon2350 {
+        internal static System.Drawing.Icon History {
             get {
-                object obj = ResourceManager.GetObject("Icon2350", resourceCulture);
+                object obj = ResourceManager.GetObject("History", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -73,9 +83,19 @@ namespace Overwritten.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
         /// </summary>
-        internal static System.Drawing.Icon Icon653 {
+        internal static System.Drawing.Icon Log {
             get {
-                object obj = ResourceManager.GetObject("Icon653", resourceCulture);
+                object obj = ResourceManager.GetObject("Log", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
+        /// </summary>
+        internal static System.Drawing.Icon Logo {
+            get {
+                object obj = ResourceManager.GetObject("Logo", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

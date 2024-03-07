@@ -1,6 +1,8 @@
-﻿using OFGmCoreCS.LoggerSimple;
+﻿using Microsoft.WindowsAPICodePack.Taskbar;
+using OFGmCoreCS.LoggerSimple;
 using OFGmCoreCS.ProgramArgument;
 using OFGmCoreCS.Util;
+using Overwritten.Properties;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -143,6 +145,7 @@ namespace Overwritten
             requireAdministrator.Visible = false;
             progressBar.Value = 0;
             progressBar.Visible = false;
+            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
             replaceButton.Enabled = true;
         }
 
@@ -187,6 +190,22 @@ namespace Overwritten
         private void SearchDirectoryCombo_DragDrop(object sender, DragEventArgs e)
         {
             searchDirectoryCombo.Text = ((string[])e.Data.GetData(DataFormats.FileDrop))[0];
+        }
+
+        private void Overwritten_Load(object sender, EventArgs e)
+        {
+            List<ThumbnailToolBarButton> buttons = new();
+
+            ThumbnailToolBarButton log = new(Resources.Log, "Журнал");
+            log.Click += (sender, e) => logForm.Show();
+
+            ThumbnailToolBarButton history = new(Resources.History, "История");
+            history.Click += (sender, e) => historyForm.Show();
+
+            buttons.Add(log);
+            buttons.Add(history);
+
+            TaskbarManager.Instance.ThumbnailToolBars.AddButtons(Handle, buttons.ToArray());
         }
     }
 }

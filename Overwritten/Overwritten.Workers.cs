@@ -1,18 +1,24 @@
-﻿using OFGmCoreCS.LoggerSimple;
+﻿using Microsoft.WindowsAPICodePack.Taskbar;
+using OFGmCoreCS.LoggerSimple;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
+using ProgressBar = System.Windows.Forms.ProgressBar;
 
 namespace Overwritten
 {
     public partial class Overwritten
     {
+        private AutoResetEvent replaceWorkerLoggerWait = new(false);
+
         private void WorkersProgressChanged(string currentFileName, LoggerLevel loggerLevel)
         {
             progressBar.PerformStep();
+            TaskbarManager.Instance.SetProgressValue(progressBar.Value, progressBar.Maximum);
 
             currentFileLabel.Text = currentFileName;
             fileCountLabel.Text = $"{progressBar.Value}/{progressBar.Maximum}";
@@ -20,9 +26,12 @@ namespace Overwritten
 
         private void WorkersProgressChanged((string message, Exception exception) report)
         {
-            WorkersProgressChanged(report.message + ": " + report.exception.Message, LoggerLevel.Error);
+            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Paused);
 
+            logger.Write(report.message + ": " + report.exception.Message, LoggerLevel.Warn);
             logger.Write(report.exception.ToString(), LoggerLevel.Debug);
+
+            replaceWorkerLoggerWait.Set();
         }
 
         private void ReplaceWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -66,7 +75,9 @@ namespace Overwritten
                         }
                         catch (Exception ex)
                         {
+                            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Indeterminate);
                             worker.ReportProgress(0, ("Не удалось изменить название файлу", ex));
+                            replaceWorkerLoggerWait.WaitOne();
                         }
                     }
                     else
@@ -96,6 +107,7 @@ namespace Overwritten
             }
             else if (e.Error != null)
             {
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Error);
                 ShowMessageBoxWithLog(e.Error.Message, "Ошибка в процессе " + name, MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
 
                 logger.Write(e.Error.ToString(), LoggerLevel.Debug);
@@ -137,6 +149,8 @@ namespace Overwritten
                 }
                 else if (e.Error == null)
                 {
+                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Paused);
+
                     if (ShowMessageBoxWithLog("Ничего не найдено", "Предупреждение", MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning, LoggerLevel.Warn) == DialogResult.Retry)
                     {
                         ReplaceButton_Click(replaceButton, e);
@@ -144,6 +158,7 @@ namespace Overwritten
                 }
 
                 progressBar.Visible = false;
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
             }
         }
 
@@ -193,10 +208,7 @@ namespace Overwritten
         {
             replaceButton.Enabled = !replaceWorker.IsBusy;
             WorkersRunWorkerCompleted(e, "отмены");
-
-            progressBar.Value = progressBar.Minimum;
-            progressBar.Visible = false;
-
+            
             if (e.Error == null)
             {
                 if (removeHistoryIndex != null)
@@ -210,6 +222,10 @@ namespace Overwritten
             }
             else
                 ShowMessageBoxWithLog("Отмена была провалена", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error, LoggerLevel.Error);
+
+            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+            progressBar.Value = progressBar.Minimum;
+            progressBar.Visible = false;
         }
     }
 }

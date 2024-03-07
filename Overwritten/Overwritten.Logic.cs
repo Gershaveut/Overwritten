@@ -1,4 +1,5 @@
-﻿using OFGmCoreCS.LoggerSimple;
+﻿using Microsoft.WindowsAPICodePack.Taskbar;
+using OFGmCoreCS.LoggerSimple;
 using OFGmCoreCS.Util;
 using System;
 using System.Collections;
@@ -28,6 +29,8 @@ namespace Overwritten
                     files = GetAllFiles(searchDirectoryCombo.Text);
                     progressBar.Maximum = files.Count;
                     progressBar.Visible = true;
+                    
+                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
 
                     if (!replaceWorker.IsBusy)
                         replaceWorker.RunWorkerAsync((searchCombo.Text, replacementCombo.Text, fullNameCheck.Checked, nameChangeCheck.Checked, undoCheck.Checked, progressBar, logger));
@@ -94,6 +97,8 @@ namespace Overwritten
 
                 progressBar.Maximum = undoFiles[id].Count + createFiles[id].Count;
                 progressBar.Visible = true;
+
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
 
                 cancelWorker.RunWorkerAsync((id, progressBar, logger));
             }
