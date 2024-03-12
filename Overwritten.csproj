@@ -48,11 +48,11 @@
     <GenerateManifests>false</GenerateManifests>
     <Title>$(AssemblyName)</Title>
     <Company>OFGm Studio</Company>
-    <AssemblyVersion>1.3.1.0</AssemblyVersion>
-    <FileVersion>1.3.1.0</FileVersion>
+    <AssemblyVersion>1.3.2.0</AssemblyVersion>
+    <FileVersion>1.3.2.0</FileVersion>
     <Authors>$(Company)</Authors>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-    <Version>1.3.1</Version>
+    <Version>1.3.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OFGmCoreCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
