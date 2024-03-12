@@ -50,7 +50,11 @@ namespace Overwritten
                 new Argument<bool>("nameChange", (arg) => nameChangeCheck.Checked = arg),
                 new Argument<bool>("undo", (arg) => undoCheck.Checked = arg),
                 new Argument<bool>("searchSubdirectories", (arg) => searchSubdirectoriesCheck.Checked = arg),
-                new Argument("runReplace", () => runReplace = true)
+                new Argument("runReplace", () => runReplace = true),
+                new Argument("log", () => Process.Start(new ProcessStartInfo("C:\\Windows\\notepad.exe")
+                {
+                    Verb = "runas",
+                }))
             });
 
             argumentHandler.ArgumentsInvoke(Program.args);
@@ -192,7 +196,33 @@ namespace Overwritten
             searchDirectoryCombo.Text = ((string[])e.Data.GetData(DataFormats.FileDrop))[0];
         }
 
-        private void Overwritten_Load(object sender, EventArgs e)
+        private void Overwritten_Shown(object sender, EventArgs e)
+        {
+            JumpListInit();
+            TaskbarManagerInit();
+        }
+
+        private static void JumpListInit()
+        {
+            JumpList jumpList = JumpList.CreateJumpList();
+
+            JumpListLink log = new(Application.ExecutablePath, "Журнал")
+            {
+                Arguments = "-log"
+            };
+
+            JumpListLink history = new(Application.ExecutablePath, "История")
+            {
+                Arguments = "-history"
+            };
+            
+            jumpList.AddUserTasks(log);
+            jumpList.AddUserTasks(history);
+
+            jumpList.Refresh();
+        }
+
+        private void TaskbarManagerInit()
         {
             List<ThumbnailToolBarButton> buttons = new();
 
@@ -204,8 +234,24 @@ namespace Overwritten
 
             buttons.Add(log);
             buttons.Add(history);
-
+            
             TaskbarManager.Instance.ThumbnailToolBars.AddButtons(Handle, buttons.ToArray());
+        }
+
+        public void HandleCmdLineArgs()
+        {
+            if (Environment.GetCommandLineArgs().Length > 1)
+            {
+                switch (Environment.GetCommandLineArgs()[1])
+                {
+                    case "-log":
+                        logForm.Show();
+                        break;
+                    case "-history":
+                        historyForm.Show();
+                        break;
+                }
+            }
         }
     }
 }

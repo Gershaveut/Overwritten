@@ -403,7 +403,7 @@ namespace Overwritten
             MinimumSize = new Size(388, 461);
             Name = "Overwritten";
             Text = "Overwritten";
-            Load += Overwritten_Load;
+            Shown += Overwritten_Shown;
             requireAdministrator.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)requireAdministratorPicture).EndInit();
             menuStrip.ResumeLayout(false);
